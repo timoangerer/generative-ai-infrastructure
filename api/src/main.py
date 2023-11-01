@@ -1,6 +1,6 @@
 from datetime import datetime
 from uuid import UUID, uuid4
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from typing import List
 from handlers import get_all_images, get_image_by_id
 
@@ -23,7 +23,10 @@ async def health_route():
 
 
 @app.get("/images/", response_model=List[Txt2ImgImgDTO], name="get_all_images_route")
-async def get_all_images_route(limit: int = 20, offset: int = 0) -> List[Txt2ImgImgDTO]:
+async def get_all_images_route(
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0)
+) -> List[Txt2ImgImgDTO]:
     return get_all_images(limit=limit, offset=offset)
 
 

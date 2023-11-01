@@ -27,6 +27,8 @@ dev = [
     "autopep8>=2.0.4",
     "pytest>=7.4.2",
     "httpx>=0.25.0",
+    "Faker>=19.12.1",
+    "pytest-mock>=3.12.0",
 ]
 
 [tool.pytest.ini_options]
