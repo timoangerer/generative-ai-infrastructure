@@ -1,0 +1,33 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "timoangerer", email = "timo.angerer@code.berlin"},
+]
+dependencies = [
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "Pillow>=10.0.1",
+    "pulsar-client[avro]>=3.3.0",
+    "boto3>=1.28.62",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+start = "python src/main.py"
+test = "pytest -s"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pylint>=3.0.1",
+    "autopep8>=2.0.4",
+    "pytest>=7.4.2",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "src",
+]
