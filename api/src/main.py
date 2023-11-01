@@ -1,20 +1,29 @@
 from datetime import datetime
 from uuid import UUID, uuid4
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from typing import List
+
+from fastapi.responses import JSONResponse
 from handlers import get_all_images, get_image_by_id
 
 from models import Txt2ImgGenerationRequestDTO, Txt2ImgImgDTO, Txt2ImgGenerationRequest
 from pulsar_utils import close_pulsar_resources, send_generation_request
-from repository import close_trino_connection
+from repository import DBError
+import logging
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    close_trino_connection()
     close_pulsar_resources()
+
+
+@app.exception_handler(DBError)
+async def db_error_handler(request: Request, exc: DBError):
+    return JSONResponse(content={"detail": "An internal error occurred. Please try again later."}, status_code=500)
 
 
 @app.get("/health/", name="health_route")

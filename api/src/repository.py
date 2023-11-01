@@ -5,20 +5,25 @@ from config import Config
 from models import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, Txt2ImgImgDTO
 
 from trino.dbapi import connect
+import logging
+
+
+class DBError(Exception):
+    """General database error."""
+
 
 config = Config()
-
-conn = connect(
-    host=config.trino_host,
-    port=config.trino_port,
-    user="<username>",
-    catalog='pulsar',
-    schema='public/default'
-)
+logger = logging.getLogger(__name__)
 
 
-def close_trino_connection():
-    conn.close()
+def get_connection():
+    return connect(
+        host=config.trino_host,
+        port=config.trino_port,
+        user="<username>",
+        catalog='pulsar',
+        schema='public/default'
+    )
 
 
 def map_row_to_image(row):
@@ -57,35 +62,42 @@ def map_row_to_image(row):
 
 
 def get_all_images(offset: int, limit: int) -> List[Txt2ImgImgDTO]:
-    cursor = conn.cursor()
+    try:
+        with get_connection() as conn:
+            cursor = conn.cursor()
 
-    sql = """
-        select
-            req.id,
-            req.metadata,
-            req.generation_settings,
-            req.__publish_time__ as request_time,
-            comp.__publish_time__ as complete_time,
-            comp.s3_bucket,
-            comp.s3_object_key
-        from
-            requested_txt2img_generation as req
-        left join completed_txt2img_generation as comp on
-            req.id = comp.id
-        order by request_time
-        offset ?
-        limit ?
-    """
-    cursor.execute(sql, (offset, limit))
-    rows = cursor.fetchall()
+            sql = """
+                select
+                    req.id,
+                    req.metadata,
+                    req.generation_settings,
+                    req.__publish_time__ as request_time,
+                    comp.__publish_time__ as complete_time,
+                    comp.s3_bucket,
+                    comp.s3_object_key
+                from
+                    requested_txt2img_generation as req
+                left join completed_txt2img_generation as comp on
+                    req.id = comp.id
+                order by request_time
+                offset ?
+                limit ?
+            """
+            cursor.execute(sql, (offset, limit))
+            rows = cursor.fetchall()
 
-    images = [map_row_to_image(row) for row in rows]
+            images = [map_row_to_image(row) for row in rows]
 
-    conn.close()
-    return images
+            cursor.close()
+            return images
+
+    except Exception as e:
+        logger.error(f"Error while fetching images: {e}")
+        raise DBError("An error occurred while fetching images.") from e
 
 
 def get_image_by_id(id: UUID) -> Optional[Txt2ImgImgDTO]:
+    conn = get_connection()
     cursor = conn.cursor()
 
     sql = """
