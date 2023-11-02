@@ -1,4 +1,4 @@
-from pulsar.schema import Array, Float, Integer, Record, String, Map
+from pulsar.schema import Array, Float, Integer, Map, Record, String
 
 
 class Txt2ImgGenerationOverrideSettings(Record):

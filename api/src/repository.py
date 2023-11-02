@@ -1,11 +1,12 @@
+import logging
 from typing import List
 from uuid import UUID
-from config import Config
-
-from models import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, Txt2ImgImgDTO
 
 from trino.dbapi import connect
-import logging
+
+from config import Config
+from models import (Txt2ImgGenerationOverrideSettings,
+                    Txt2ImgGenerationSettings, Txt2ImgImgDTO)
 
 
 class DBError(Exception):

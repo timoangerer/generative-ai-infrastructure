@@ -1,15 +1,15 @@
-from datetime import datetime
-from uuid import UUID, uuid4
-from fastapi import FastAPI, HTTPException, Query, Request
+import logging
 from typing import List
+from uuid import UUID, uuid4
 
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
-from handlers import get_all_images, get_image_by_id
 
-from models import Txt2ImgGenerationRequestDTO, Txt2ImgImgDTO, Txt2ImgGenerationRequest
+from handlers import get_all_images, get_image_by_id
+from models import (Txt2ImgGenerationRequest, Txt2ImgGenerationRequestDTO,
+                    Txt2ImgImgDTO)
 from pulsar_utils import close_pulsar_resources, send_generation_request
 from repository import DBError
-import logging
 
 logger = logging.getLogger(__name__)
 

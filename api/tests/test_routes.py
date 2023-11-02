@@ -1,7 +1,9 @@
 import time
-from fastapi.testclient import TestClient
-from src.main import app
 from uuid import UUID
+
+from fastapi.testclient import TestClient
+
+from src.main import app
 
 client = TestClient(app)
 

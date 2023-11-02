@@ -1,8 +1,7 @@
-from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
 import pytest
-from repository import DBError
+from fastapi.testclient import TestClient
 
+from repository import DBError
 from src.main import app
 from tests.mocks import mock_txt2img_img_dto
 

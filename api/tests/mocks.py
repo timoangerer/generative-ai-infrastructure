@@ -1,8 +1,10 @@
-from faker import Faker
 import random
 from uuid import uuid4
 
-from models import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, Txt2ImgImgDTO
+from faker import Faker
+
+from models import (Txt2ImgGenerationOverrideSettings,
+                    Txt2ImgGenerationSettings, Txt2ImgImgDTO)
 
 fake = Faker()
 

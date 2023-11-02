@@ -1,9 +1,9 @@
 from typing import List
 from uuid import UUID
 
-from models import Txt2ImgImgDTO, Txt2ImgGenerationRequest
-from pulsar_utils import send_generation_request
 import repository as TrinoRepository
+from models import Txt2ImgGenerationRequest, Txt2ImgImgDTO
+from pulsar_utils import send_generation_request
 
 
 def get_all_images(offset: int, limit: int) -> List[Txt2ImgImgDTO]:

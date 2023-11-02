@@ -1,12 +1,15 @@
 import pulsar
+from pulsar.schema import AvroSchema
+
 from config import Config
 from models import Txt2ImgGenerationRequest
-from pulsar.schema import AvroSchema
-from pulsar_schemas import (
-    Txt2ImgGenerationSettings as PulsarTxt2ImgGenerationSettings,
-    RequestedTxt2ImgGenerationEvent as PulsarRequestedTxt2ImgGenerationEvent,
-    Txt2ImgGenerationOverrideSettings as PulsarTxt2ImgGenerationOverrideSettings
-)
+from pulsar_schemas import \
+    RequestedTxt2ImgGenerationEvent as PulsarRequestedTxt2ImgGenerationEvent
+from pulsar_schemas import \
+    Txt2ImgGenerationOverrideSettings as \
+    PulsarTxt2ImgGenerationOverrideSettings
+from pulsar_schemas import \
+    Txt2ImgGenerationSettings as PulsarTxt2ImgGenerationSettings
 from topics import Topics
 
 config = Config()
