@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from business_logic import get_all_images, get_image_by_id
 from models import (Txt2ImgGenerationRequest, Txt2ImgGenerationRequestDTO,
@@ -67,3 +68,5 @@ async def generate_image_route(req: Txt2ImgGenerationRequestDTO) -> UUID:
 
     send_generation_request(generation_request)
     return request_id
+
+FastAPIInstrumentor.instrument_app(app)
