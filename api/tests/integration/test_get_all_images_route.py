@@ -64,6 +64,16 @@ def test_get_all_images_generic_exception(mocker):
         "detail") == "An unexpected error occurred. Please try again later."
 
 
+def test_get_all_images_db_exception(mocker):
+    mocker.patch("src.main.get_all_images",
+                 side_effect=DBError("Mocked DB error"))
+    response = client.get("/images/")
+
+    assert response.status_code == 500
+    assert response.json().get(
+        "detail") == "An internal error occurred. Please try again later."
+
+
 @pytest.mark.parametrize(
     "limit,offset",
     [
@@ -82,34 +92,3 @@ def test_get_all_images_invalid_params(mocker, limit, offset):
 
     response = client.get(f"/images/?limit={limit}&offset={offset}")
     assert response.status_code == 422  # Expecting a validation error
-
-
-def mock_cursor(fetchall_result):
-    """Helper function to mock cursor."""
-    cursor = MagicMock()
-    cursor.fetchall.return_value = fetchall_result
-    return cursor
-
-
-def mock_connection(cursor):
-    """Helper function to mock connection."""
-    conn = MagicMock()
-    conn.cursor.return_value = cursor
-    return conn
-
-
-def test_get_all_images_error():
-    # Create a mock connection that simulates the context manager behavior
-    mock_conn = MagicMock()
-    # This simulates the `as conn` in the with statement
-    mock_conn.__enter__.return_value = MagicMock()
-    mock_conn.__exit__.return_value = None  # This is needed for a context manager
-
-    # Mock the get_connection function to raise a DBError
-    with patch('handlers.TrinoRepository.get_connection', return_value=mock_conn):
-        with patch('handlers.TrinoRepository.get_all_images', side_effect=DBError("Mocked DB error")):
-            response = client.get("/images/")
-
-            assert response.status_code == 500
-            assert response.json() == {
-                "detail": "An internal error occurred. Please try again later."}
