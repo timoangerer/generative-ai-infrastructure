@@ -1,7 +1,7 @@
 import pulsar
 from pulsar.schema import AvroSchema
 
-from config import Config
+from config import get_config
 from models import Txt2ImgGenerationRequest
 from pulsar_schemas import \
     RequestedTxt2ImgGenerationEvent as PulsarRequestedTxt2ImgGenerationEvent
@@ -12,7 +12,7 @@ from pulsar_schemas import \
     Txt2ImgGenerationSettings as PulsarTxt2ImgGenerationSettings
 from topics import Topics
 
-config = Config()
+config = get_config()
 
 client = pulsar.Client(config.pulsar_broker_service_url)
 
