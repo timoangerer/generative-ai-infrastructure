@@ -22,6 +22,15 @@ def test_get_all_images_default(mocker):
     assert len(response.json()) <= 20  # default limit
 
 
+def test_get_all_images_no_images(mocker):
+    mocker.patch("src.main.get_all_images", return_value=[])
+
+    response = client.get("/images/")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
 def test_get_all_images_custom_limit(mocker):
     custom_limit = 10
     mocker.patch("src.main.get_all_images", mock_get_all_images)
