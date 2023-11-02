@@ -6,7 +6,7 @@ from repository import DBError
 from src.main import app
 from tests.mocks import mock_txt2img_img_dto
 
-client = TestClient(app)
+client = TestClient(app, raise_server_exceptions=False)
 
 
 def mock_get_all_images(limit=20, offset=0):
@@ -52,6 +52,16 @@ def test_get_all_images_offset(mocker):
 
     # Ensure that data is different because of the offset
     assert response1.json() != response2.json()
+
+
+def test_get_all_images_generic_exception(mocker):
+    mocker.patch("src.main.get_all_images",
+                 side_effect=Exception("Unexpected error"))
+    response = client.get("/images/")
+
+    assert response.status_code == 500
+    assert response.json().get(
+        "detail") == "An unexpected error occurred. Please try again later."
 
 
 @pytest.mark.parametrize(

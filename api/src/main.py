@@ -21,8 +21,15 @@ async def shutdown_event():
     close_pulsar_resources()
 
 
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Error occured: {exc}")
+    return JSONResponse(content={"detail": "An unexpected error occurred. Please try again later."}, status_code=500)
+
+
 @app.exception_handler(DBError)
 async def db_error_handler(request: Request, exc: DBError):
+    logger.error(f"Database error occurred: {exc}")
     return JSONResponse(content={"detail": "An internal error occurred. Please try again later."}, status_code=500)
 
 
@@ -33,8 +40,10 @@ async def health_route():
 
 @app.get("/images/", response_model=List[Txt2ImgImgDTO], name="get_all_images_route")
 async def get_all_images_route(
-    limit: int = Query(20, ge=1, le=100),
-    offset: int = Query(0, ge=0)
+    limit: int = Query(
+        20, ge=1, le=100, description="Number of images to retrieve, between 1 and 100"),
+    offset: int = Query(
+        0, ge=0, description="Offset for pagination, starting from 0")
 ) -> List[Txt2ImgImgDTO]:
     return get_all_images(limit=limit, offset=offset)
 
