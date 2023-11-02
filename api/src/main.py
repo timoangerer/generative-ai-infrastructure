@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 
-from handlers import get_all_images, get_image_by_id
+from business_logic import get_all_images, get_image_by_id
 from models import (Txt2ImgGenerationRequest, Txt2ImgGenerationRequestDTO,
                     Txt2ImgImgDTO)
 from pulsar_utils import close_pulsar_resources, send_generation_request
