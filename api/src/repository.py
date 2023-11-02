@@ -3,10 +3,13 @@ from abc import ABC, abstractmethod
 from typing import List
 from uuid import UUID
 
+from opentelemetry import trace
 from trino.dbapi import connect
 
 from models import (Txt2ImgGenerationOverrideSettings,
                     Txt2ImgGenerationSettings, Txt2ImgImgDTO)
+
+tracer = trace.get_tracer(__name__)
 
 
 class DBError(Exception):
@@ -82,6 +85,7 @@ class TrinoRepository(Repository):
             image_url=image_url
         )
 
+    @tracer.start_as_current_span("get_all_images")
     def get_all_images(self, offset: int, limit: int) -> List[Txt2ImgImgDTO]:
         try:
             with self.get_connection() as conn:

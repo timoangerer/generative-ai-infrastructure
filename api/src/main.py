@@ -1,9 +1,11 @@
 import logging
+import time
 from typing import List
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
+from opentelemetry import trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from business_logic import get_all_images, get_image_by_id
