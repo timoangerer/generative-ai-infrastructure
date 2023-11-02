@@ -15,8 +15,9 @@ client = pulsar.Client(config.pulsar_broker_service_url)
 
 
 def send_generation_request(generation_request: Txt2ImgGenerationRequest):
-    producer = client.create_producer(topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",
-                                      schema=AvroSchema(PulsarRequestedTxt2ImgGenerationEvent))
+    producer = client.create_producer(
+        topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",
+        schema=AvroSchema(PulsarRequestedTxt2ImgGenerationEvent))  # type: ignore
 
     override_settings = PulsarTxt2ImgGenerationOverrideSettings(
         sd_model_checkpoint=generation_request.generation_settings.override_settings.sd_model_checkpoint
@@ -37,13 +38,13 @@ def send_generation_request(generation_request: Txt2ImgGenerationRequest):
         override_settings=override_settings
     )
 
-    generation_request = PulsarRequestedTxt2ImgGenerationEvent(
+    pulsar_generation_request = PulsarRequestedTxt2ImgGenerationEvent(
         id=str(generation_request.id),
         metadata=generation_request.metadata,
         generation_settings=generation_settings
     )
 
-    producer.send(generation_request)
+    producer.send(pulsar_generation_request)
 
 
 def close_pulsar_resources():

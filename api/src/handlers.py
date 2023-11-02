@@ -14,5 +14,5 @@ def get_image_by_id(id: UUID) -> Txt2ImgImgDTO:
     return TrinoRepository.get_image_by_id(id)
 
 
-def generate_image(generation_request: Txt2ImgGenerationRequest) -> UUID:
+def generate_image(generation_request: Txt2ImgGenerationRequest):
     send_generation_request(generation_request)

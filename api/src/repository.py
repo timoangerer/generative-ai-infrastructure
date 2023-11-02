@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from uuid import UUID
 from config import Config
 
@@ -10,6 +10,10 @@ import logging
 
 class DBError(Exception):
     """General database error."""
+
+
+class ImageNotFound(DBError):
+    """Image not found."""
 
 
 config = Config()
@@ -96,7 +100,7 @@ def get_all_images(offset: int, limit: int) -> List[Txt2ImgImgDTO]:
         raise DBError("An error occurred while fetching images.") from e
 
 
-def get_image_by_id(id: UUID) -> Optional[Txt2ImgImgDTO]:
+def get_image_by_id(id: UUID) -> Txt2ImgImgDTO:
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -121,8 +125,8 @@ def get_image_by_id(id: UUID) -> Optional[Txt2ImgImgDTO]:
     conn.close()
 
     if len(rows) == 0:
-        return None
+        raise ImageNotFound("Image not found")
     elif len(rows) > 1:
-        raise Exception("More than one image found with the same id")
+        raise DBError("More than one image found with the same id")
 
     return map_row_to_image(rows[0])
