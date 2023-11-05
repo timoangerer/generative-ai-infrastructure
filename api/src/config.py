@@ -16,6 +16,9 @@ class Config(BaseSettings):
     trino_catalog: str = Field(...)
     trino_schema: str = Field(...)
 
+    otel_service_name: str = Field(...)
+    otel_exporter_otlp_endpoint: str = Field(...)
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

@@ -23,7 +23,7 @@ readme = "README.md"
 license = {text = "MIT"}
 
 [tool.pdm.scripts]
-start = "OTEL_RESOURCE_ATTRIBUTES=service.name=gen-api OTEL_EXPORTER_OTLP_ENDPOINT='http://localhost:4317' OTEL_EXPORTER_OTLP_PROTOCOL=grpc opentelemetry-instrument uvicorn --app-dir=src main:app"
+start = "uvicorn --app-dir=src main:app"
 dev = "uvicorn --app-dir=src main:app --reload"
 test = "pytest"
 

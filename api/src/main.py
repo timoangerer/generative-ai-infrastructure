@@ -4,36 +4,18 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
-from opentelemetry import trace
-from opentelemetry._logs import set_logger_provider
-from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
-    OTLPLogExporter
-from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
-from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
-                                            ConsoleSpanExporter)
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from business_logic import get_all_images, get_image_by_id
+from config import get_config
 from models import (Txt2ImgGenerationRequest, Txt2ImgGenerationRequestDTO,
                     Txt2ImgImgDTO)
+from otel import setup_otel
 from pulsar_utils import close_pulsar_resources, send_generation_request
 from repository import DBError
 
-trace.set_tracer_provider(TracerProvider())
-trace.get_tracer_provider().add_span_processor(  # type: ignore
-    BatchSpanProcessor(ConsoleSpanExporter())
-)
-
-logger_provider = LoggerProvider()
-set_logger_provider(logger_provider)
-
-exporter = OTLPLogExporter(insecure=True)
-logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
-handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
-
-# Attach OTLP handler to root logger
-logging.getLogger().addHandler(handler)
+config = get_config()
+setup_otel()
 
 logger = logging.getLogger(__name__)
 
@@ -91,3 +73,5 @@ async def generate_image_route(req: Txt2ImgGenerationRequestDTO) -> UUID:
 
     send_generation_request(generation_request)
     return request_id
+
+FastAPIInstrumentor.instrument_app(app)
