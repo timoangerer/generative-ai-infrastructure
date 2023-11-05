@@ -7,6 +7,7 @@ from opentelemetry.exporter.otlp.proto.grpc._log_exporter import \
     OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
     OTLPSpanExporter
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
@@ -45,6 +46,10 @@ def setup_otel_logging():
 
     # Attach OTLP handler to root logger
     logging.getLogger().addHandler(handler)
+
+    # Acticate logging instrumentation
+    LoggingInstrumentor(set_logging_format=True,
+                        log_level=logging.info).instrument()
 
 
 def setup_otel():
