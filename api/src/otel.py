@@ -46,10 +46,16 @@ def setup_otel_logging():
 
     # Attach OTLP handler to root logger
     logging.getLogger().addHandler(handler)
+    logging.getLogger().addHandler(logging.StreamHandler()
+                                   )  # Handler to print to console
+
+    log_level = logging.INFO
+
+    logging.getLogger().setLevel(log_level)
 
     # Acticate logging instrumentation
     LoggingInstrumentor(set_logging_format=True,
-                        log_level=logging.info).instrument()
+                        log_level=log_level).instrument()
 
 
 def setup_otel():
