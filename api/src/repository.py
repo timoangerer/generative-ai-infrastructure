@@ -89,6 +89,7 @@ class TrinoRepository(Repository):
     def get_all_images(self, offset: int, limit: int) -> List[Txt2ImgImgDTO]:
         try:
             with self.get_connection() as conn:
+                conn.legacy_prepared_statements = True  # TODO: remove this in prod
                 cursor = conn.cursor()
 
                 sql = """
@@ -108,6 +109,7 @@ class TrinoRepository(Repository):
                     offset ?
                     limit ?
                 """
+
                 cursor.execute(sql, (offset, limit))
                 rows = cursor.fetchall()
 
