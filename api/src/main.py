@@ -58,6 +58,7 @@ async def get_all_images_route(
 async def get_image_by_id_route(image_id: UUID) -> Txt2ImgImgDTO:
     image = get_image_by_id(image_id)
     if not image:
+        logger.error(f"Image with id {image_id} not found")
         raise HTTPException(status_code=404, detail="Image not found")
     return image
 

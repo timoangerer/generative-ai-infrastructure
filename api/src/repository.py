@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 from opentelemetry import trace
@@ -123,33 +123,38 @@ class TrinoRepository(Repository):
             raise DBError(
                 "An error occurred while fetching images.") from e
 
-    def get_image_by_id(self, id: UUID) -> Txt2ImgImgDTO:
-        conn = self.get_connection()
-        cursor = conn.cursor()
+    def get_image_by_id(self, id: UUID) -> Optional[Txt2ImgImgDTO]:
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
 
-        sql = """
-            select
-                req.id,
-                req.metadata,
-                req.generation_settings,
-                req.__publish_time__ as request_time,
-                comp.__publish_time__ as complete_time,
-                comp.s3_bucket,
-                comp.s3_object_key
-            from
-                requested_txt2img_generation as req
-            left join completed_txt2img_generation as comp on
-                req.id = comp.id
-            where req.id = ?
-        """
-        cursor.execute(sql, (str(id),))
-        rows = cursor.fetchall()
+            sql = """
+                select
+                    req.id,
+                    req.metadata,
+                    req.generation_settings,
+                    req.__publish_time__ as request_time,
+                    comp.__publish_time__ as complete_time,
+                    comp.s3_bucket,
+                    comp.s3_object_key
+                from
+                    requested_txt2img_generation as req
+                left join completed_txt2img_generation as comp on
+                    req.id = comp.id
+                where req.id = ?
+            """
+            cursor.execute(sql, (str(id),))
+            rows = cursor.fetchall()
 
-        conn.close()
+            conn.close()
 
-        if len(rows) == 0:
-            raise ImageNotFound("Image not found")
-        elif len(rows) > 1:
-            raise DBError("More than one image found with the same id")
+            if len(rows) == 0:
+                return None
+            elif len(rows) > 1:
+                raise DBError("More than one image found with the same id")
 
-        return self.map_row_to_image(rows[0])
+            return self.map_row_to_image(rows[0])
+        except Exception as e:
+            self.logger.error(f"Error while fetching image by id: {e}")
+            raise DBError(
+                f"An error occurred while fetching image with id {id}") from e

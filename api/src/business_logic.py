@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 
 import repository as TrinoRepository
@@ -22,7 +22,7 @@ def get_all_images(offset: int, limit: int) -> List[Txt2ImgImgDTO]:
     return repository.get_all_images(offset=offset, limit=limit)
 
 
-def get_image_by_id(id: UUID) -> Txt2ImgImgDTO:
+def get_image_by_id(id: UUID) -> Optional[Txt2ImgImgDTO]:
     return repository.get_image_by_id(id)
 
 
