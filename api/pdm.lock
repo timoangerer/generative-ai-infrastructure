@@ -6,7 +6,7 @@ groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:b888f2152b4e56b4b0aa4870b4bc50d929c1ef380297ba5ebe750f97a03b4bbc"
+content_hash = "sha256:5e4e40c27c8c421ba4f50c4b690cef6985391eb74727445c0e13c5aba824e758"
 
 [[package]]
 name = "annotated-types"
@@ -362,21 +362,6 @@ dependencies = [
 files = [
     {file = "opentelemetry_api-1.20.0-py3-none-any.whl", hash = "sha256:982b76036fec0fdaf490ae3dfd9f28c81442a33414f737abc687a32758cdcba5"},
     {file = "opentelemetry_api-1.20.0.tar.gz", hash = "sha256:06abe351db7572f8afdd0fb889ce53f3c992dbf6f6262507b385cc1963e06983"},
-]
-
-[[package]]
-name = "opentelemetry-distro"
-version = "0.41b0"
-requires_python = ">=3.7"
-summary = "OpenTelemetry Python Distro"
-dependencies = [
-    "opentelemetry-api~=1.12",
-    "opentelemetry-instrumentation==0.41b0",
-    "opentelemetry-sdk~=1.13",
-]
-files = [
-    {file = "opentelemetry_distro-0.41b0-py3-none-any.whl", hash = "sha256:61a028dc8c1418b8634a5bf71e15ad85427cb55d97a0cd6a58dd135e456cc027"},
-    {file = "opentelemetry_distro-0.41b0.tar.gz", hash = "sha256:8ce05f9499a09c99d9c5f550ff2ed6d229444cae17ae36baf705b0ccb647a959"},
 ]
 
 [[package]]
