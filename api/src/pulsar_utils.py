@@ -1,4 +1,5 @@
 import pulsar
+from opentelemetry import trace
 from pulsar.schema import AvroSchema
 
 from config import get_config
@@ -13,10 +14,11 @@ from pulsar_schemas import \
 from topics import Topics
 
 config = get_config()
-
+tracer = trace.get_tracer(__name__)
 client = pulsar.Client(config.pulsar_broker_service_url)
 
 
+@tracer.start_as_current_span("send_generation_request")
 def send_generation_request(generation_request: Txt2ImgGenerationRequest):
     producer = client.create_producer(
         topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",

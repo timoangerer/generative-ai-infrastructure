@@ -2,25 +2,25 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Txt2ImgGenerationOverrideSettings(BaseModel):
-    sd_model_checkpoint: str
+    sd_model_checkpoint: str = Field(..., min_length=1)
 
 
 class Txt2ImgGenerationSettings(BaseModel):
     prompt: str
-    negative_prompt: str
-    styles: List[str]
-    seed: int
-    sampler_name: str
-    batch_size: int
-    n_iters: int
-    steps: int
-    cfg_scale: float
-    width: int
-    height: int
+    negative_prompt: str = ""
+    styles: List[str] = []
+    seed: int = -1
+    sampler_name: str = Field(default="DPM++ 2M Karras", min_length=1)
+    batch_size: int = 1
+    n_iters: int = 1
+    steps: int = 20
+    cfg_scale: float = 7
+    width: int = 512
+    height: int = 512
     override_settings: Txt2ImgGenerationOverrideSettings
 
 

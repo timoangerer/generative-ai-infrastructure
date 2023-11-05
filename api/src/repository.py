@@ -123,6 +123,7 @@ class TrinoRepository(Repository):
             raise DBError(
                 "An error occurred while fetching images.") from e
 
+    @tracer.start_as_current_span("get_image_by_id")
     def get_image_by_id(self, id: UUID) -> Optional[Txt2ImgImgDTO]:
         try:
             conn = self.get_connection()
