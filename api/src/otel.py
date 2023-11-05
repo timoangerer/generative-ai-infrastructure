@@ -11,8 +11,7 @@ from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
-                                            ConsoleSpanExporter)
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from config import get_config
 
@@ -27,14 +26,11 @@ resource = Resource.create(
 
 def setup_otel_tracing():
     trace.set_tracer_provider(TracerProvider(resource=resource))
-    trace.get_tracer_provider().add_span_processor(  # type: ignore
-        BatchSpanProcessor(ConsoleSpanExporter())
-    )
-    span_processor = BatchSpanProcessor(
+    otlp_span_processor = BatchSpanProcessor(
         OTLPSpanExporter(endpoint=config.otel_exporter_otlp_endpoint)
     )
     trace.get_tracer_provider().add_span_processor(  # type: ignore
-        span_processor
+        otlp_span_processor
     )
 
 
