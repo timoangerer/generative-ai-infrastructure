@@ -1,14 +1,24 @@
-from dotenv import load_dotenv
-import os
+from functools import lru_cache
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Config:
-    def __init__(self):
-        load_dotenv()  # Load environment variables from .env
-        self.pulsar_service_url = os.getenv('pulsar_service_url')
-        self.pulsar_broker_service_url = os.getenv('pulsar_broker_service_url')
-        self.pulsar_cluster = os.getenv('pulsar_cluster')
-        self.pulsar_tenant = os.getenv('pulsar_tenant')
-        self.pulsar_namespace = os.getenv('pulsar_namespace')
-        self.sd_server_url = os.getenv('sd_server_url')
-        self.s3_bucket_name = os.getenv('s3_bucket_name')
+class Config(BaseSettings):
+    pulsar_service_url: str = Field(...)
+    pulsar_broker_service_url: str = Field(...)
+    pulsar_cluster: str = Field(...)
+    pulsar_tenant: str = Field(...)
+    pulsar_namespace: str = Field(...)
+    sd_server_url: str = Field(...)
+    s3_bucket_name: str = Field(...)
+
+    aws_access_key_id: str = Field(...)
+    aws_secret_access_key: str = Field(...)
+
+    model_config = SettingsConfigDict(env_file=".env")
+
+
+@lru_cache
+def get_config():
+    return Config()  # type: ignore

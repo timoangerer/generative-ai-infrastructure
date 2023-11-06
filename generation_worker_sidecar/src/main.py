@@ -2,33 +2,33 @@ import signal
 import sys
 import logging
 import pulsar
-from config import Config
+from config import Config, get_config
 from pulsar.schema import AvroSchema
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent, StartedTxt2ImgGenerationEvent
 from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
-
 from topics import Topics
 from utils import upload_image_to_s3
 
 logging.basicConfig(level=logging.INFO)
 
-config = Config()
+config = get_config()
 
 pulsar_client = pulsar.Client(config.pulsar_broker_service_url)
 
 requested_txt2img_generation_consumer = pulsar_client.subscribe(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",
     subscription_name='requested_txt2img_generation-shared-subscription',
-    schema=AvroSchema(RequestedTxt2ImgGenerationEvent), receiver_queue_size=0,
+    schema=AvroSchema(RequestedTxt2ImgGenerationEvent),  # type: ignore
+    receiver_queue_size=0,
     consumer_type=pulsar.ConsumerType.Shared)
 
 started_txt2img_generation_producer = pulsar_client.create_producer(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.STARTED_TXT2IMG_GENERATION.value}",
-    schema=AvroSchema(StartedTxt2ImgGenerationEvent))
+    schema=AvroSchema(StartedTxt2ImgGenerationEvent))  # type: ignore
 
 completed_txt2img_generation_producer = pulsar_client.create_producer(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.COMPLETED_TXT2IMG_GENERATION.value}",
-    schema=AvroSchema(CompletedTxt2ImgGenerationEvent))
+    schema=AvroSchema(CompletedTxt2ImgGenerationEvent))  # type: ignore
 
 
 def process_requested_txt2img_generation_event(pulsar_client: pulsar.Client, config: Config, event: RequestedTxt2ImgGenerationEvent):
@@ -92,6 +92,7 @@ if __name__ == '__main__':
         Topics.REQUESTED_TXT2IMG_GENERATION.value)
 
     while True:
+        event = None
         try:
             event = requested_txt2img_generation_consumer.receive()
             event_value: RequestedTxt2ImgGenerationEvent = event.value()
@@ -103,7 +104,11 @@ if __name__ == '__main__':
             requested_txt2img_generation_consumer.acknowledge(event)
             logging.info("Acknowledged message '%s'", event_value.id)
         except Exception as e:
-            logging.error(
-                f"Error while processing message '{event_value.id}': {str(e)}")
-            requested_txt2img_generation_consumer.negative_acknowledge(event)
-            logging.warn(f"Negative acknowledged message '{event_value.id}'")
+            if event is not None:
+                event_value: RequestedTxt2ImgGenerationEvent = event.value()
+                logging.error(
+                    f"Error while processing message '{event_value.id}': {str(e)}")
+                requested_txt2img_generation_consumer.negative_acknowledge(
+                    event)
+                logging.error(
+                    f"Negative acknowledged message '{event_value.id}'")
