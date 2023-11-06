@@ -31,7 +31,7 @@ completed_txt2img_generation_producer = pulsar_client.create_producer(
     schema=AvroSchema(CompletedTxt2ImgGenerationEvent))  # type: ignore
 
 
-def process_requested_txt2img_generation_event(pulsar_client: pulsar.Client, config: Config, event: RequestedTxt2ImgGenerationEvent):
+def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent):
     logging.info("Process event: %s, '%s'", event.id,
                  event.generation_settings.prompt)
 
@@ -39,22 +39,24 @@ def process_requested_txt2img_generation_event(pulsar_client: pulsar.Client, con
     started_txt2img_generation_producer.send(
         StartedTxt2ImgGenerationEvent(id=event.id))
 
+    # type: ignore[start]
     txt2img_generation_settings = Txt2ImgGenerationSettings(
-        prompt=event.generation_settings.prompt,
-        negative_prompt=event.generation_settings.negative_prompt,
-        styles=event.generation_settings.styles,
-        seed=event.generation_settings.seed,
-        sampler_name=event.generation_settings.sampler_name,
-        batch_size=event.generation_settings.batch_size,
-        n_iters=event.generation_settings.n_iters,
-        steps=event.generation_settings.steps,
-        cfg_scale=event.generation_settings.cfg_scale,
-        width=event.generation_settings.width,
-        height=event.generation_settings.height,
+        prompt=event.generation_settings.prompt,  # type: ignore
+        negative_prompt=event.generation_settings.negative_prompt,  # type: ignore
+        styles=event.generation_settings.styles,  # type: ignore
+        seed=event.generation_settings.seed,  # type: ignore
+        sampler_name=event.generation_settings.sampler_name,  # type: ignore
+        batch_size=event.generation_settings.batch_size,  # type: ignore
+        n_iters=event.generation_settings.n_iters,  # type: ignore
+        steps=event.generation_settings.steps,  # type: ignore
+        cfg_scale=event.generation_settings.cfg_scale,  # type: ignore
+        width=event.generation_settings.width,  # type: ignore
+        height=event.generation_settings.height,  # type: ignore
         override_settings=Txt2ImgGenerationOverrideSettings(
-            sd_model_checkpoint=event.generation_settings.override_settings.sd_model_checkpoint
+            sd_model_checkpoint=event.generation_settings.override_settings.sd_model_checkpoint  # type: ignore
         )
     )
+    # type: ignore[end]
     image = generate_txt2img(config.sd_server_url, txt2img_generation_settings)
     logging.info("Generated image")
 
@@ -97,8 +99,7 @@ if __name__ == '__main__':
             event = requested_txt2img_generation_consumer.receive()
             event_value: RequestedTxt2ImgGenerationEvent = event.value()
 
-            process_requested_txt2img_generation_event(pulsar_client=pulsar_client,
-                                                       config=config,
+            process_requested_txt2img_generation_event(config=config,
                                                        event=event_value)
 
             requested_txt2img_generation_consumer.acknowledge(event)
