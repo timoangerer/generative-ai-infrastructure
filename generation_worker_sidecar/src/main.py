@@ -7,7 +7,7 @@ from pulsar.schema import AvroSchema
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent, StartedTxt2ImgGenerationEvent
 from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
 from topics import Topics
-from utils import upload_image_to_s3
+from utils import all_functions_return_true, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, run_with_retries, upload_image_to_s3
 
 logging.basicConfig(level=logging.INFO)
 
@@ -83,6 +83,23 @@ def signal_handler(sig, frame):
 
     pulsar_client.close()
     sys.exit(0)
+
+
+def is_operational() -> bool:
+    checks = [
+        lambda: can_upload_to_s3(config.s3_bucket_name),
+        lambda: is_pulsar_topic_available(
+            config.pulsar_service_url, Topics.REQUESTED_TXT2IMG_GENERATION.value),
+        lambda: is_pulsar_topic_available(
+            config.pulsar_service_url, Topics.STARTED_TXT2IMG_GENERATION.value),
+
+        lambda: is_pulsar_topic_available(
+            config.pulsar_service_url, Topics.COMPLETED_TXT2IMG_GENERATION.value),
+        lambda: is_possible_to_generate_txt2img(config.sd_server_url),
+    ]
+    res = all_functions_return_true(checks)
+
+    return True
 
 
 signal.signal(signal.SIGINT, signal_handler)
