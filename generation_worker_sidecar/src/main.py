@@ -7,7 +7,7 @@ from pulsar.schema import AvroSchema
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent, StartedTxt2ImgGenerationEvent
 from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
 from topics import Topics
-from utils import all_functions_return_true, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, run_with_retries, upload_image_to_s3
+from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, retry_async_func, upload_image_to_s3
 
 logging.basicConfig(level=logging.INFO)
 
@@ -85,7 +85,14 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def is_operational() -> bool:
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+if __name__ == '__main__':
+    logging.info(
+        "Started consumer for stream: %s. Waiting for messages...",
+        Topics.REQUESTED_TXT2IMG_GENERATION.value)
+
     checks = [
         lambda: can_upload_to_s3(config.s3_bucket_name),
         lambda: is_pulsar_topic_available(
@@ -97,36 +104,30 @@ def is_operational() -> bool:
             config.pulsar_service_url, Topics.COMPLETED_TXT2IMG_GENERATION.value),
         lambda: is_possible_to_generate_txt2img(config.sd_server_url),
     ]
-    res = all_functions_return_true(checks)
 
-    return True
+    try:
+        while all_checks_successful(checks):
+            while True:
+                event = None
+                try:
+                    event = requested_txt2img_generation_consumer.receive()
+                    event_value: RequestedTxt2ImgGenerationEvent = event.value()
 
+                    process_requested_txt2img_generation_event(config=config,
+                                                               event=event_value)
 
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
-
-if __name__ == '__main__':
-    logging.info(
-        "Started consumer for stream: %s. Waiting for messages...",
-        Topics.REQUESTED_TXT2IMG_GENERATION.value)
-
-    while True:
-        event = None
-        try:
-            event = requested_txt2img_generation_consumer.receive()
-            event_value: RequestedTxt2ImgGenerationEvent = event.value()
-
-            process_requested_txt2img_generation_event(config=config,
-                                                       event=event_value)
-
-            requested_txt2img_generation_consumer.acknowledge(event)
-            logging.info("Acknowledged message '%s'", event_value.id)
-        except Exception as e:
-            if event is not None:
-                event_value: RequestedTxt2ImgGenerationEvent = event.value()
-                logging.error(
-                    f"Error while processing message '{event_value.id}': {str(e)}")
-                requested_txt2img_generation_consumer.negative_acknowledge(
-                    event)
-                logging.error(
-                    f"Negative acknowledged message '{event_value.id}'")
+                    requested_txt2img_generation_consumer.acknowledge(event)
+                    logging.info("Acknowledged message '%s'", event_value.id)
+                except Exception as e:
+                    if event is not None:
+                        event_value: RequestedTxt2ImgGenerationEvent = event.value()
+                        logging.error(
+                            f"Error while processing message '{event_value.id}': {str(e)}")
+                        requested_txt2img_generation_consumer.negative_acknowledge(
+                            event)
+                        logging.error(
+                            f"Negative acknowledged message '{event_value.id}'")
+                    break
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
+        sys.exit(1)
