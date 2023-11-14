@@ -16,8 +16,9 @@ logging.basicConfig(level=logging.WARNING)
 pulsar_logger = logging.getLogger('pulsar')
 
 sidecar_logger = logging.getLogger('sidecar')
+sidecar_logger.setLevel(logging.INFO)
 
-config = get_config()
+config = get_config(env_file='test.env')
 
 pulsar_client = pulsar.Client(
     config.pulsar_broker_service_url, logger=pulsar_logger)
