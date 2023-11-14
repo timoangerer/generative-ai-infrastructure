@@ -1,3 +1,4 @@
+import asyncio
 import signal
 import sys
 import logging
@@ -9,11 +10,16 @@ from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSe
 from topics import Topics
 from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, retry_async_func, upload_image_to_s3
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
+
+pulsar_logger = logging.getLogger('pulsar')
+
+sidecar_logger = logging.getLogger('sidecar')
 
 config = get_config()
 
-pulsar_client = pulsar.Client(config.pulsar_broker_service_url)
+pulsar_client = pulsar.Client(
+    config.pulsar_broker_service_url, logger=pulsar_logger)
 
 requested_txt2img_generation_consumer = pulsar_client.subscribe(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",
@@ -32,8 +38,8 @@ completed_txt2img_generation_producer = pulsar_client.create_producer(
 
 
 def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent):
-    logging.info("Process event: %s, '%s'", event.id,
-                 event.generation_settings.prompt)
+    sidecar_logger.info("Process event: %s, '%s'", event.id,
+                        event.generation_settings.prompt)
 
     # Generate an image from the message
     started_txt2img_generation_producer.send(
@@ -58,11 +64,11 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
     )
     # type: ignore[end]
     image = generate_txt2img(config.sd_server_url, txt2img_generation_settings)
-    logging.info("Generated image")
+    sidecar_logger.info("Generated image")
 
     # Store the generated image on S3
     upload_image_to_s3(image, config.s3_bucket_name, f"{event.id}.jpg")
-    logging.info("Uploaded image to S3")
+    sidecar_logger.info("Uploaded image to S3")
 
     # Produce event for generated image
     completed_txt2img_generation_event = CompletedTxt2ImgGenerationEvent(
@@ -88,10 +94,10 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
-if __name__ == '__main__':
-    logging.info(
-        "Started consumer for stream: %s. Waiting for messages...",
-        Topics.REQUESTED_TXT2IMG_GENERATION.value)
+
+async def main():
+    sidecar_logger.info(
+        "Started Sidecar service ")
 
     checks = [
         lambda: can_upload_to_s3(config.s3_bucket_name),
@@ -106,10 +112,11 @@ if __name__ == '__main__':
     ]
 
     try:
-        while all_checks_successful(checks):
+        while await all_checks_successful(checks):
             while True:
                 event = None
                 try:
+                    sidecar_logger.info("Waiting for message...")
                     event = requested_txt2img_generation_consumer.receive()
                     event_value: RequestedTxt2ImgGenerationEvent = event.value()
 
@@ -117,17 +124,21 @@ if __name__ == '__main__':
                                                                event=event_value)
 
                     requested_txt2img_generation_consumer.acknowledge(event)
-                    logging.info("Acknowledged message '%s'", event_value.id)
+                    sidecar_logger.info(
+                        "Acknowledged message '%s'", event_value.id)
                 except Exception as e:
                     if event is not None:
                         event_value: RequestedTxt2ImgGenerationEvent = event.value()
-                        logging.error(
+                        sidecar_logger.error(
                             f"Error while processing message '{event_value.id}': {str(e)}")
                         requested_txt2img_generation_consumer.negative_acknowledge(
                             event)
-                        logging.error(
+                        sidecar_logger.error(
                             f"Negative acknowledged message '{event_value.id}'")
                     break
     except Exception as e:
-        logging.error(f"Error: {str(e)}")
+        sidecar_logger.error(f"Error in Sidecar: {str(e)}")
         sys.exit(1)
+
+if __name__ == '__main__':
+    asyncio.run(main())

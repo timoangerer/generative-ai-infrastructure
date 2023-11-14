@@ -1,3 +1,4 @@
+from typing import List
 import requests
 
 
@@ -29,16 +30,26 @@ def create_topic(service_url: str, tenant: str, namespace: str, topic_name: str)
 
 def delete_topic(service_url: str, tenant: str, namespace: str, topic_name: str):
     url = f"{service_url}/admin/v2/persistent/{tenant}/{namespace}/{topic_name}"
-    response = requests.delete(url, timeout=5)
+    response = requests.delete(url, timeout=5, params={'force': True})
 
 
-def create_tenant_namespace_topic(service_url: str, cluster: str, tenant: str, namespace: str, topic_name: str):
-    tenant_res = create_tenant(service_url, cluster, tenant)
+def create_tenant_namespace_topics(service_url: str, cluster: str, tenant: str, namespace: str, topics: List[str]):
+    create_tenant(service_url, cluster, tenant)
     create_namespace(service_url, tenant, namespace)
-    create_topic(service_url, tenant, namespace, topic_name)
+
+    for topic_name in topics:
+        create_topic(service_url, tenant, namespace, topic_name)
 
 
-def delete_tenant_namespace_topic(service_url: str, tenant: str, namespace: str, topic_name: str):
-    delete_topic(service_url, tenant, namespace, topic_name)
+def delete_tenant_namespace_topics(service_url: str, tenant: str, namespace: str, topics: List[str]):
+    for topic_name in topics:
+        delete_topic(service_url, tenant, namespace, topic_name)
+
     delete_namespace(service_url, tenant, namespace)
     delete_tenant(service_url, tenant)
+
+
+def get_stats(service_url: str, tenant: str, namespace: str, topic_name: str):
+    url = f"{service_url}/admin/v2/persistent/{tenant}/{namespace}/{topic_name}/stats"
+    response = requests.get(url, timeout=5)
+    return response.json()

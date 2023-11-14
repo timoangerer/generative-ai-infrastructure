@@ -28,30 +28,35 @@ class HealthCheckFailed(Exception):
     pass
 
 
-def can_upload_to_s3(bucket_name, aws_region='eu-west-1'):
-    # Create a Boto3 client for IAM
+async def can_upload_to_s3(bucket_name, aws_region='eu-west-1'):
+    # Create a Boto3 client for IAM and STS
     iam_client = boto3.client('iam')
+    sts_client = boto3.client('sts')
 
     try:
-        # Simulate the policy for the current user
+        # Get the ARN of the current user or role
+        caller_identity = sts_client.get_caller_identity()
+        caller_arn = caller_identity['Arn']
+
+        # Simulate the policy for the current user or role
         response = iam_client.simulate_principal_policy(
-            PolicySourceArn=f'arn:aws:iam::{aws_region}:user/example-user',
+            PolicySourceArn=caller_arn,
             ActionNames=['s3:PutObject'],
             ResourceArns=[f'arn:aws:s3:::{bucket_name}/*']
         )
 
-        # Check if the user has the necessary permissions
+        # Check if the user or role has the necessary permissions
         for result in response.get('EvaluationResults', []):
             if result.get('EvalDecision') == 'allowed':
                 return True
             else:
-                return False
+                raise HealthCheckFailed("Not possible to upload to S3")
 
     except Exception as e:
         raise HealthCheckFailed(e)
 
 
-def is_pulsar_topic_available(service_url, topic):
+async def is_pulsar_topic_available(service_url, topic):
     client = pulsar.Client(service_url)
     try:
         # Try to create a producer to check write access
@@ -70,14 +75,14 @@ def is_pulsar_topic_available(service_url, topic):
         client.close()
 
 
-def is_possible_to_generate_txt2img(sd_server_url: str):
+async def is_possible_to_generate_txt2img(sd_server_url: str):
     try:
         response = requests.get(f"{sd_server_url}/app_id")
 
         if response.status_code == 200:
             return True
         else:
-            return False
+            raise Exception("Not possible to generate txt2img")
     except Exception as e:
         raise HealthCheckFailed(e)
 
