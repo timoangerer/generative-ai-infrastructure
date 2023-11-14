@@ -5,10 +5,10 @@ import logging
 import pulsar
 from config import Config, get_config
 from pulsar.schema import AvroSchema
-from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent, StartedTxt2ImgGenerationEvent
+from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent
 from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
 from topics import Topics
-from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, retry_async_func, upload_image_to_s3
+from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, upload_image_to_s3
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -28,22 +28,15 @@ requested_txt2img_generation_consumer = pulsar_client.subscribe(
     receiver_queue_size=0,
     consumer_type=pulsar.ConsumerType.Shared)
 
-started_txt2img_generation_producer = pulsar_client.create_producer(
-    topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.STARTED_TXT2IMG_GENERATION.value}",
-    schema=AvroSchema(StartedTxt2ImgGenerationEvent))  # type: ignore
-
 completed_txt2img_generation_producer = pulsar_client.create_producer(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.COMPLETED_TXT2IMG_GENERATION.value}",
+    producer_name="completed_txt2img_generation_producer",
     schema=AvroSchema(CompletedTxt2ImgGenerationEvent))  # type: ignore
 
 
 def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent):
     sidecar_logger.info("Process event: %s, '%s'", event.id,
                         event.generation_settings.prompt)
-
-    # Generate an image from the message
-    started_txt2img_generation_producer.send(
-        StartedTxt2ImgGenerationEvent(id=event.id))
 
     # type: ignore[start]
     txt2img_generation_settings = Txt2ImgGenerationSettings(
@@ -80,19 +73,18 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         completed_txt2img_generation_event)
 
 
-def signal_handler(sig, frame):
-    print('Shutting down gracefully...')
+# def signal_handler(sig, frame):
+#     print('Shutting down gracefully...')
 
-    requested_txt2img_generation_consumer.close()
-    started_txt2img_generation_producer.close()
-    completed_txt2img_generation_producer.close()
+#     # requested_txt2img_generation_consumer.close()
+#     # completed_txt2img_generation_producer.close()
 
-    pulsar_client.close()
-    sys.exit(0)
+#     # pulsar_client.close()
+#     sys.exit(0)
 
 
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
+# signal.signal(signal.SIGINT, signal_handler)
+# signal.signal(signal.SIGTERM, signal_handler)
 
 
 async def main():
@@ -103,9 +95,6 @@ async def main():
         lambda: can_upload_to_s3(config.s3_bucket_name),
         lambda: is_pulsar_topic_available(
             config.pulsar_service_url, Topics.REQUESTED_TXT2IMG_GENERATION.value),
-        lambda: is_pulsar_topic_available(
-            config.pulsar_service_url, Topics.STARTED_TXT2IMG_GENERATION.value),
-
         lambda: is_pulsar_topic_available(
             config.pulsar_service_url, Topics.COMPLETED_TXT2IMG_GENERATION.value),
         lambda: is_possible_to_generate_txt2img(config.sd_server_url),

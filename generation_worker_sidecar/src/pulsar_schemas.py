@@ -31,8 +31,3 @@ class CompletedTxt2ImgGenerationEvent(Record):
     metadata = Map(String())
     s3_bucket = String()
     s3_object_key = String()
-
-
-class StartedTxt2ImgGenerationEvent(Record):
-    id = String()
-    metadata = Map(String())
