@@ -5,6 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
+    model_config = SettingsConfigDict()
+
     pulsar_service_url: str = Field(...)
     pulsar_broker_service_url: str = Field(...)
     pulsar_cluster: str = Field(...)
@@ -16,9 +18,7 @@ class Config(BaseSettings):
     aws_access_key_id: str = Field(...)
     aws_secret_access_key: str = Field(...)
 
-    model_config = SettingsConfigDict(env_file=".env")
-
 
 @lru_cache
-def get_config():
-    return Config()  # type: ignore
+def get_config(env_file: str = "dev.env"):
+    return Config(_env_file=env_file)  # type: ignore

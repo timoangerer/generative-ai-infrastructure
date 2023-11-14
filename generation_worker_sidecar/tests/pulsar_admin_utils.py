@@ -25,7 +25,7 @@ def delete_namespace(service_url: str, tenant: str, namespace: str):
 
 def create_topic(service_url: str, tenant: str, namespace: str, topic_name: str):
     url = f"{service_url}/admin/v2/persistent/{tenant}/{namespace}/{topic_name}"
-    response = requests.put(url, timeout=5)
+    response = requests.put(url, timeout=5, params={'force': True})
 
 
 def delete_topic(service_url: str, tenant: str, namespace: str, topic_name: str):

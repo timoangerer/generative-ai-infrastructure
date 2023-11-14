@@ -3,6 +3,7 @@ import atexit
 import sys
 import logging
 import pulsar
+from pulsar import ConsumerDeadLetterPolicy
 from config import Config, get_config
 from pulsar.schema import AvroSchema
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent
@@ -27,7 +28,12 @@ requested_txt2img_generation_consumer = pulsar_client.subscribe(
     subscription_name='requested_txt2img_generation-shared-subscription',
     schema=AvroSchema(RequestedTxt2ImgGenerationEvent),  # type: ignore
     receiver_queue_size=0,
-    consumer_type=pulsar.ConsumerType.Shared)
+    consumer_type=pulsar.ConsumerType.Shared,
+    dead_letter_policy=ConsumerDeadLetterPolicy(
+        max_redeliver_count=3,
+        dead_letter_topic=Topics.DLQ_REQUESTED_TXT2IMG_GENERATION.value
+    )
+)
 
 completed_txt2img_generation_producer = pulsar_client.create_producer(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.COMPLETED_TXT2IMG_GENERATION.value}",
@@ -109,6 +115,7 @@ async def main():
                             f"Error while processing message '{event_value.id}': {str(e)}")
                         requested_txt2img_generation_consumer.negative_acknowledge(
                             event)
+                        requested_txt2img_generation_consumer.redeliver_unacknowledged_messages()
                         sidecar_logger.error(
                             f"Negative acknowledged message '{event_value.id}'")
                     break
