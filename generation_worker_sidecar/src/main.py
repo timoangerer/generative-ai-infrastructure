@@ -1,5 +1,5 @@
 import asyncio
-import signal
+import atexit
 import sys
 import logging
 import pulsar
@@ -20,6 +20,7 @@ config = get_config()
 
 pulsar_client = pulsar.Client(
     config.pulsar_broker_service_url, logger=pulsar_logger)
+
 
 requested_txt2img_generation_consumer = pulsar_client.subscribe(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",
@@ -73,20 +74,6 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         completed_txt2img_generation_event)
 
 
-# def signal_handler(sig, frame):
-#     print('Shutting down gracefully...')
-
-#     # requested_txt2img_generation_consumer.close()
-#     # completed_txt2img_generation_producer.close()
-
-#     # pulsar_client.close()
-#     sys.exit(0)
-
-
-# signal.signal(signal.SIGINT, signal_handler)
-# signal.signal(signal.SIGTERM, signal_handler)
-
-
 async def main():
     sidecar_logger.info(
         "Started Sidecar service ")
@@ -131,3 +118,5 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+
+atexit.register(pulsar_client.close)
