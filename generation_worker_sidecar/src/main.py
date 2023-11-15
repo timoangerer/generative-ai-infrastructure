@@ -1,4 +1,4 @@
-from opentelemetry import trace
+from opentelemetry import trace, context
 import asyncio
 import atexit
 import sys
@@ -12,6 +12,8 @@ from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGene
 from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
 from topics import Topics
 from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, upload_image_to_s3
+from opentelemetry.trace.propagation.tracecontext import \
+    TraceContextTextMapPropagator
 
 setup_otel()
 
@@ -88,6 +90,7 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         completed_txt2img_generation_event)
 
 
+@tracer.start_as_current_span("sidecar_main")
 async def main():
     sidecar_logger.info(
         "Started Sidecar service ")
@@ -109,6 +112,9 @@ async def main():
                     sidecar_logger.info("Waiting for message...")
                     event = requested_txt2img_generation_consumer.receive()
                     event_value: RequestedTxt2ImgGenerationEvent = event.value()
+
+                    ctx = TraceContextTextMapPropagator().extract(carrier=event.properties())
+                    context.attach(ctx)
 
                     process_requested_txt2img_generation_event(config=config,
                                                                event=event_value)

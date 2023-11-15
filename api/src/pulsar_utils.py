@@ -1,5 +1,7 @@
 import pulsar
 from opentelemetry import trace
+from opentelemetry.trace.propagation.tracecontext import \
+    TraceContextTextMapPropagator
 from pulsar.schema import AvroSchema
 
 from config import get_config
@@ -49,7 +51,11 @@ def send_generation_request(generation_request: Txt2ImgGenerationRequest):
         generation_settings=generation_settings
     )
 
-    producer.send(pulsar_generation_request)
+    trace_ctx = {}
+    TraceContextTextMapPropagator().inject(trace_ctx)
+
+    producer.send(content=pulsar_generation_request,
+                  properties=trace_ctx)
 
 
 def close_pulsar_resources():
