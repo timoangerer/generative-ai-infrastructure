@@ -15,6 +15,9 @@ class Config(BaseSettings):
     sd_server_url: str = Field(...)
     s3_bucket_name: str = Field(...)
 
+    otel_service_name: str = Field(...)
+    otel_exporter_otlp_endpoint: str = Field(...)
+
     aws_access_key_id: str = Field(...)
     aws_secret_access_key: str = Field(...)
 

@@ -1,3 +1,4 @@
+from opentelemetry import trace
 import asyncio
 import atexit
 import sys
@@ -6,10 +7,15 @@ import pulsar
 from pulsar import ConsumerDeadLetterPolicy
 from config import Config, get_config
 from pulsar.schema import AvroSchema
+from otel import setup_otel
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent
 from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
 from topics import Topics
 from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, upload_image_to_s3
+
+setup_otel()
+
+tracer = trace.get_tracer(__name__)
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -22,7 +28,6 @@ config = get_config(env_file='dev.env')
 
 pulsar_client = pulsar.Client(
     config.pulsar_broker_service_url, logger=pulsar_logger)
-
 
 requested_txt2img_generation_consumer = pulsar_client.subscribe(
     topic=f"persistent://{config.pulsar_tenant}/{config.pulsar_namespace}/{Topics.REQUESTED_TXT2IMG_GENERATION.value}",
@@ -42,6 +47,7 @@ completed_txt2img_generation_producer = pulsar_client.create_producer(
     schema=AvroSchema(CompletedTxt2ImgGenerationEvent))  # type: ignore
 
 
+@tracer.start_as_current_span("process_requested_txt2img_generation_event")
 def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent):
     sidecar_logger.info("Process event: %s, '%s'", event.id,
                         event.generation_settings.prompt)
@@ -68,8 +74,9 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
     sidecar_logger.info("Generated image")
 
     # Store the generated image on S3
-    upload_image_to_s3(image, config.s3_bucket_name, f"{event.id}.jpg")
-    sidecar_logger.info("Uploaded image to S3")
+    with tracer.start_as_current_span("upload image"):
+        upload_image_to_s3(image, config.s3_bucket_name, f"{event.id}.jpg")
+        sidecar_logger.info("Uploaded image to S3")
 
     # Produce event for generated image
     completed_txt2img_generation_event = CompletedTxt2ImgGenerationEvent(
