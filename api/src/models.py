@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
@@ -13,7 +14,7 @@ class Txt2ImgGenerationSettings(BaseModel):
     prompt: str
     negative_prompt: str = ""
     styles: List[str] = []
-    seed: int = -1
+    seed: int = Field(default=random.randint(0, 9999999999), ge=0)
     sampler_name: str = Field(default="DPM++ 2M Karras", min_length=1)
     batch_size: int = 1
     n_iters: int = 1
