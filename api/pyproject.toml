@@ -19,7 +19,7 @@ dependencies = [
     "opentelemetry-instrumentation-fastapi>=0.41b0",
     "opentelemetry-exporter-otlp>=1.20.0",
 ]
-requires-python = "==3.10"
+requires-python = "==3.10.13"
 readme = "README.md"
 license = {text = "MIT"}
 
