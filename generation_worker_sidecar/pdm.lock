@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:27274443f7e0592c72909210252fb97b6ae8a5865290bed1f1430fbe968a858a"
+content_hash = "sha256:a8b366d22b148c6cce4d45b04d1d3f109bc58f22c883bd84090229b7629ebfa1"
 
 [[package]]
 name = "annotated-types"
@@ -207,23 +207,29 @@ files = [
 
 [[package]]
 name = "fastavro"
-version = "1.7.3"
-requires_python = ">=3.7"
+version = "1.9.0"
+requires_python = ">=3.8"
 summary = "Fast read/write of AVRO files"
 files = [
-    {file = "fastavro-1.7.3-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:10a5ac9d8c66d4ba24f25ad7313e2dab56d98ceebcf53ba9cfa88acdd135c794"},
-    {file = "fastavro-1.7.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b2e6d8bb79e53dc39e620c777f14b5f7122f1bf21309a9fcf60085f8e062e49c"},
-    {file = "fastavro-1.7.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9a0ba2f43844eb784f8abf5324a0c10474287beaecb14fb736e47136464e3044"},
-    {file = "fastavro-1.7.3-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:e20db96b092d7b6208f3063a424d35bb48c283e2d8b4e7ad4ee6541dc1fac2ed"},
-    {file = "fastavro-1.7.3-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:52ba6bb5525561df577ebd94819784626caac9d8ad2ed167030403ba1bf73159"},
-    {file = "fastavro-1.7.3-cp310-cp310-win_amd64.whl", hash = "sha256:22d6f3e73f471e2b4ba0785cb60df939792e8904db4ba93037ba6b7858f7d6f9"},
-    {file = "fastavro-1.7.3-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:5dd5299cbc5bc2aa15f1c619f4cc55c054c6fe9ccd614f93eb1d6ab22cf314dd"},
-    {file = "fastavro-1.7.3-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f4706a77038bf31ad2e8cc752a0c007894bd39ffb0b775c7824113743182c5f6"},
-    {file = "fastavro-1.7.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b6b0e58e7dd34906d21738c3461cddef760de3b7845779169a378b2757afa693"},
-    {file = "fastavro-1.7.3-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:04740e2dd27084b4155337d082f2a232cf1d801a1b009f772e50c8306a8f8aaf"},
-    {file = "fastavro-1.7.3-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:2f95c767bf97e896640f24d58931b3a19df3d84ccaf0606c92e603c79de60f16"},
-    {file = "fastavro-1.7.3-cp311-cp311-win_amd64.whl", hash = "sha256:a727e07007230267e25702d5f3738854cb315747fc58b84839699db30dedf490"},
-    {file = "fastavro-1.7.3.tar.gz", hash = "sha256:8b08bd3cba45830b64adda32ccc5b027a71b6941a99cc39f90d7019a7986cc19"},
+    {file = "fastavro-1.9.0-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:00826f295f290ba95f1f68d5c36970b4db7f9245a1b1a33dd9d464a382733894"},
+    {file = "fastavro-1.9.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3ff7ac97cfe07ad90fdcca3ea90b14461ba8831bc45f02e13440b6c634f291c8"},
+    {file = "fastavro-1.9.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8c251e7122b436458b8e1151c0613d6dac2b5edb6acbbc35de3b4c5f6ebb80b7"},
+    {file = "fastavro-1.9.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:35a32f5d33f91fcb7e8daf7afc82a75c8d7c774cf4d93937b2ad487d28f3f707"},
+    {file = "fastavro-1.9.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:228e7c525ff15a9f21f1adb2097ec87888933ef5c8a682c2f1d5d83796e4dd42"},
+    {file = "fastavro-1.9.0-cp310-cp310-win_amd64.whl", hash = "sha256:d694bb1c2b20f1703bcb698a74f58f0f503eda8f49cb6d46209c8f3715098348"},
+    {file = "fastavro-1.9.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:0f044b71d8b0ba6bbd6166be6836c3caeadd26eeaabee70b6ac7c6a9b884f6bf"},
+    {file = "fastavro-1.9.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:172d6d5c186ba51ec6eaa98eaaadc8e859b5a56862ae724413424a858619da7f"},
+    {file = "fastavro-1.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:07dee19dcc2797a8cb1b410d9e65febb55af2a18d9a7b85465b039d4276b9a29"},
+    {file = "fastavro-1.9.0-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:83402b450f718b690ebd88f1df2ea70609f1192bed1498308d29ac737e992391"},
+    {file = "fastavro-1.9.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:b3704847d79377a5b4252ccf6d3a391497cdb8f57017cde2613f92f5274d6261"},
+    {file = "fastavro-1.9.0-cp311-cp311-win_amd64.whl", hash = "sha256:602492ea0c458020cd19138ff2b9e97aa187ae01c290183dd9bbb7ff2d2e83c4"},
+    {file = "fastavro-1.9.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:1cea6c2508dfb06d65cddb5b90bd6a79d3e481f1d80adc5f6ce6e3dacb4a8773"},
+    {file = "fastavro-1.9.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8629d4367373db7d195672834c59c86e2642172bbebd5ec6d83797b39ac4ef01"},
+    {file = "fastavro-1.9.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f45dfc29de276b509c8dbbfa6076ba6562be055c877928d4ffa1cf35b8ec59dc"},
+    {file = "fastavro-1.9.0-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:cc3b2de071e4d6de19974ffd328e63f7c85de2348d614222238fda2b35578b63"},
+    {file = "fastavro-1.9.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:a0d2570052b4e2d7b46bec4cd74c8b12d8e21cd151f5bfc837da990cb62385c5"},
+    {file = "fastavro-1.9.0-cp312-cp312-win_amd64.whl", hash = "sha256:718e5df505029269e7a80afdd7e5f196d24f1473ad47eea41061ce630609f80e"},
+    {file = "fastavro-1.9.0.tar.gz", hash = "sha256:71aad82b17442dc41223f8351b9f28a60dd877a8e5a7525eaf6342f45f6d23e1"},
 ]
 
 [[package]]
@@ -625,30 +631,6 @@ version = "3.3.0"
 summary = "Apache Pulsar Python client library"
 dependencies = [
     "certifi",
-]
-files = [
-    {file = "pulsar_client-3.3.0-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:c31afd3e67a044ff93177df89e08febf214cc965e95ede097d9fe8755af00e01"},
-    {file = "pulsar_client-3.3.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1f66982284571674b215324cc26b5c2f7c56c7043113c47a7084cb70d67a8afb"},
-    {file = "pulsar_client-3.3.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7fe50a06f81c48a75a9b95c27a6446260039adca71d9face273740de96b2efca"},
-    {file = "pulsar_client-3.3.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:d4c46a4b96a6e9919cfe220156d69a2ede8053d9ea1add4ada108abcf2ba9775"},
-    {file = "pulsar_client-3.3.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:1e4b5d44b992c9b036286b483f3588c10b89c6047fb59d80c7474445997f4e10"},
-    {file = "pulsar_client-3.3.0-cp310-cp310-win_amd64.whl", hash = "sha256:497a59ac6b650835a3b2c502f53477e5c98e5226998ca3f17c0b0a3eb4d67d08"},
-    {file = "pulsar_client-3.3.0-cp311-cp311-macosx_10_15_universal2.whl", hash = "sha256:386e78ff52058d881780bae1f6e84ac9434ae0b01a8581755ca8cc0dc844a332"},
-    {file = "pulsar_client-3.3.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3e4ecb780df58bcfd3918590bd3ff31ed79bccfbef3a1a60370642eb1e14a9d2"},
-    {file = "pulsar_client-3.3.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7ce1e215c252f22a6f26ca5e9076826041a04d88dc213b92c86b524be2774a64"},
-    {file = "pulsar_client-3.3.0-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:88b0fd5be73a4103986b9dbe3a66468cf8829371e34af87ff8f216e3980f4cbe"},
-    {file = "pulsar_client-3.3.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:33656450536d83eed1563ff09692c2c415fb199d88e9ed97d701ca446a119e1b"},
-    {file = "pulsar_client-3.3.0-cp311-cp311-win_amd64.whl", hash = "sha256:ce33de700b06583df8777e139d68cb4b4b3d0a2eac168d74278d8935f357fb10"},
-]
-
-[[package]]
-name = "pulsar-client"
-version = "3.3.0"
-extras = ["avro"]
-summary = "Apache Pulsar Python client library"
-dependencies = [
-    "fastavro==1.7.3",
-    "pulsar-client==3.3.0",
 ]
 files = [
     {file = "pulsar_client-3.3.0-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:c31afd3e67a044ff93177df89e08febf214cc965e95ede097d9fe8755af00e01"},
