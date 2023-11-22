@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: main-config
+data:
+  pulsar_service_url: http://localhost:8080
+  pulsar_broker_service_url: pulsar://localhost:6650/
+  pulsar_cluster: standalone
+  pulsar_tenant: public
+  pulsar_namespace: default
+  trino_host: http://localhost
+  trino_port: "8081"
+  trino_user: <username>
+  trino_catalog: pulsar
+  trino_schema: public/default
+
+  otel_service_name: gen-api-1
+  otel_exporter_otlp_endpoint: http://localhost:4317
