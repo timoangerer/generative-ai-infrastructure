@@ -39,7 +39,7 @@ def setup_otel_logging():
     logger_provider = LoggerProvider(resource=resource)
     set_logger_provider(logger_provider)
 
-    exporter = OTLPLogExporter(insecure=True)
+    exporter = OTLPLogExporter(insecure=True, endpoint=config.otel_exporter_otlp_endpoint)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
     handler = LoggingHandler(level=logging.NOTSET,
                              logger_provider=logger_provider)

@@ -14,5 +14,5 @@ data:
   trino_catalog: pulsar
   trino_schema: public/default
 
-  otel_service_name: gen-api-1
-  otel_exporter_otlp_endpoint: http://localhost:4317
+  otel_service_name: genai1
+  otel_exporter_otlp_endpoint: http://my-release-signoz-otel-collector.platform:4317
