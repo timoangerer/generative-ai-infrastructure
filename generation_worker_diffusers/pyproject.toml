@@ -1,0 +1,31 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "timoangerer", email = "timo.angerer@code.berlin"},
+]
+dependencies = [
+    "torch>=2.1.1",
+    "torchvision>=0.16.1",
+    "torchaudio>=2.1.1",
+    "diffusers[torch]>=0.24.0",
+    "transformers>=4.35.2",
+    "Pillow>=10.1.0",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.scripts]
+start.cmd = "python -m src.main"
+start.env = {MODELS_PATH = "./models"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.3",
+]
