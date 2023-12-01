@@ -19,9 +19,17 @@ settings = GenerationSettings(
     guidance_scale=7.5,
     num_inference_steps=5,
     sampler_name="ddim",
+    seed=42
 )
 
-img = generate_text2image(settings=settings, model_path=model_path)
+
+def generation_progress_callback(self, step: int, timestep: int, callback_kwargs: dict):
+    print(f"Step: {step}, Timestep: {timestep}")
+    return callback_kwargs
+
+
+img = generate_text2image(
+    settings=settings, model_path=model_path, callback_on_step_end=generation_progress_callback)
 
 
 current_time = datetime.datetime.now().isoformat()

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from os import PathLike
-from typing import Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import torch
 from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion import \
@@ -17,6 +17,7 @@ class GenerationSettings:
     guidance_scale: float
     num_inference_steps: int
     sampler_name: str
+    seed: int
 
 
 def select_device():
@@ -28,22 +29,27 @@ def select_device():
         return torch.device("cpu")
 
 
-def generate_text2image(settings: GenerationSettings, model_path: Optional[Union[str, PathLike]]) -> Image.Image:
+def generate_text2image(settings: GenerationSettings,
+                        model_path: Optional[Union[str, PathLike]],
+                        callback_on_step_end: Optional[Callable] = None) -> Image.Image:
     device = select_device()
 
-    # Load the pipeline for the specified device and dtype
     pipeline = StableDiffusionPipeline.from_single_file(
         pretrained_model_link_or_path=model_path,
         safety_checker=None
     ).to(device)
 
+    generator = torch.Generator(device=device).manual_seed(settings.seed)
+
     image = pipeline(
+        generator=generator,
         prompt=settings.prompt,
         negative_prompt=settings.negative_prompt,
         num_inference_steps=settings.num_inference_steps,
         height=settings.height,
         width=settings.width,
         guidance_scale=settings.guidance_scale,
+        callback_on_step_end=callback_on_step_end
     ).images[0]
 
     return image
