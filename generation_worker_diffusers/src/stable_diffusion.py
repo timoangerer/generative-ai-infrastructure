@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from os import PathLike
 from typing import Optional, Union
-from diffusers import StableDiffusionPipeline
+
 import torch
+from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion import \
+    StableDiffusionPipeline
 from PIL import Image
+
 
 @dataclass
 class GenerationSettings:
@@ -16,27 +19,31 @@ class GenerationSettings:
     sampler_name: str
 
 
-def generate_text2image(settings: GenerationSettings, model_path: Optional[Union[str, PathLike]]) -> Image.Image:
+def select_device():
     if torch.cuda.is_available():
-        device = "cuda"
-        torch_dtype = torch.float16
+        return torch.device("cuda")
+    elif torch.backends.mps.is_built():
+        return torch.device("mps")
     else:
-        device = "cpu"
-        torch_dtype = torch.float32
+        return torch.device("cpu")
+
+
+def generate_text2image(settings: GenerationSettings, model_path: Optional[Union[str, PathLike]]) -> Image.Image:
+    device = select_device()
 
     # Load the pipeline for the specified device and dtype
     pipeline = StableDiffusionPipeline.from_single_file(
-        settings.model_path,
+        pretrained_model_link_or_path=model_path,
         safety_checker=None
-    ).to("mps")
+    ).to(device)
 
     image = pipeline(
         prompt=settings.prompt,
-        # negative_prompt=settings.negative_prompt,
+        negative_prompt=settings.negative_prompt,
         num_inference_steps=settings.num_inference_steps,
-        # height=settings.height,
-        # width=settings.width,
-        # guidance_scale=settings.guidance_scale,
+        height=settings.height,
+        width=settings.width,
+        guidance_scale=settings.guidance_scale,
     ).images[0]
 
     return image

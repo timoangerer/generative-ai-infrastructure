@@ -1,5 +1,7 @@
-from sd_generation import GenerationSettings, generate_text2image, get_model_path_by_name
 from pathlib import Path
+
+from sd_generation import (GenerationSettings, generate_text2image,
+                           get_model_path_by_name)
 
 
 def test_generate_text2image():
