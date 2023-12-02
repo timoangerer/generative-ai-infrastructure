@@ -22,3 +22,13 @@ docker build -t generation-worker .
 ```bash
 docker run --rm -v ./models:/models --env MODELS_PATH="/models" generation-worker
 ```
+
+With GPU enabled:
+```bash
+docker run --rm -v ./models:/models --env MODELS_PATH="/models" --gpus all generation-worker
+```
+
+For testing purposes:
+```bash
+docker run --rm -v ./models:/models --env MODELS_PATH="/models" generation-worker python -m src.sample_image
+```
