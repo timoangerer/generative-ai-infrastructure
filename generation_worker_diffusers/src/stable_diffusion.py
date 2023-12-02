@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from os import PathLike
 from typing import Callable, Optional, Union
@@ -33,6 +34,8 @@ def generate_text2image(settings: GenerationSettings,
                         model_path: Optional[Union[str, PathLike]],
                         callback_on_step_end: Optional[Callable] = None) -> Image.Image:
     device = select_device()
+    logging.info(f"Using device: {device}")
+    print(f"Using device: {device}")
 
     pipeline = StableDiffusionPipeline.from_single_file(
         pretrained_model_link_or_path=model_path,

@@ -9,7 +9,7 @@ COPY ./pyproject.toml ./pdm.lock /tmp/
 RUN pdm export --without-hashes --prod -f requirements -o requirements.txt
 
 
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.0-base-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -34,6 +34,4 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY ./src src/
 
-ENV MODELS_PATH=/models
-
-CMD python3
+CMD python3 -m src.main
