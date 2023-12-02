@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from os import PathLike
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Callable, Optional, Union
 
 import torch
 from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion import \

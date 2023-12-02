@@ -1,17 +1,12 @@
 import datetime
-import os
+from pathlib import Path
 
-from src.settings import get_settings
 from src.stable_diffusion import GenerationSettings, generate_text2image
 from src.utils import get_model_path_by_name
 
 
 def test_generate_text2image():
-    os.environ['MODELS_PATH'] = './models'
-
-    settings = get_settings()
-
-    models_path = settings.models_path
+    models_path = Path('./models')
 
     model_path = get_model_path_by_name(
         model_name="v1-5-pruned-emaonly", root_folder=models_path, json_file="models.json")
