@@ -26,14 +26,16 @@ license = {text = "MIT"}
 start.cmd = "python -m src.main"
 start.env = {MODELS_PATH = "./models"}
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
 [tool.pdm.dev-dependencies]
 dev = [
     "pytest>=7.4.3",
+    "huggingface-hub>=0.19.4",
 ]
+
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.pytest.ini_options]
 pythonpath = [

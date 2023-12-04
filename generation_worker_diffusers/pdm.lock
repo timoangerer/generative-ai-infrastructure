@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:64c393f9af84234e252db1747adb5bbc1349e00a5d674be7b70454a4d19d2a16"
+content_hash = "sha256:9fbc4a8cef77e850d3c46940c8b07042ee780576cced1c76ef7735b797cf5c4a"
 
 [[package]]
 name = "accelerate"

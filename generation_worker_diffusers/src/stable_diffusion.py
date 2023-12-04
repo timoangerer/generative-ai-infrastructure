@@ -39,7 +39,8 @@ def generate_text2image(settings: GenerationSettings,
 
     pipeline = StableDiffusionPipeline.from_single_file(
         pretrained_model_link_or_path=model_path,
-        safety_checker=None
+        safety_checker=None,
+        local_files_only=True
     ).to(device)
 
     generator = torch.Generator(device=device).manual_seed(settings.seed)
