@@ -25,7 +25,7 @@ docker run --rm -v ./models:/models --env MODELS_PATH="/models" generation-worke
 
 With GPU enabled:
 ```bash
-docker run --rm -v ./models:/models --env MODELS_PATH="/models" --gpus all generation-worker
+docker run --rm -v ./models:/models --env MODELS_PATH="/models" -p 18812:18812 --gpus all generation-worker
 ```
 
 For testing purposes:

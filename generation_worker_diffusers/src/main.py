@@ -55,4 +55,5 @@ if __name__ == "__main__":
     server = ThreadedServer(MyService, port=18812, protocol_config={
         'allow_public_attrs': True,
     })
+    print("Starting RPC server")
     server.start()

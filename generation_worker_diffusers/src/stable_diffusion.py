@@ -29,7 +29,6 @@ def select_device():
     else:
         return torch.device("cpu")
 
-
 def generate_text2image(settings: GenerationSettings,
                         model_path: Optional[Union[str, PathLike]],
                         callback_on_step_end: Optional[Callable] = None) -> Image.Image:
