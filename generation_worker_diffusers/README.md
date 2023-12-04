@@ -30,5 +30,5 @@ docker run --rm -v ./models:/models --env MODELS_PATH="/models" --gpus all gener
 
 For testing purposes:
 ```bash
-docker run --rm -v ./models:/models -v ./hf_cache:/hf_cache --env MODELS_PATH="/models" --env HF_HOME="/hf_cache" --gpus all generation-worker python -m src.sample_image
+docker run --rm -v ./models:/models --env MODELS_PATH="/models" --gpus all generation-worker python -m src.sample_image
 ```
