@@ -20,7 +20,6 @@ class GenerationSettings:
     sampler_name: str
     seed: int
 
-
 def select_device():
     if torch.cuda.is_available():
         return torch.device("cuda")
@@ -29,19 +28,32 @@ def select_device():
     else:
         return torch.device("cpu")
 
-def generate_text2image(settings: GenerationSettings,
-                        model_path: Optional[Union[str, PathLike]],
-                        callback_on_step_end: Optional[Callable] = None) -> Image.Image:
+
+
+def create_pipeline(model_path: Optional[Union[str, PathLike]]):
+    pipeline = StableDiffusionPipeline.from_single_file(
+        pretrained_model_link_or_path=model_path,
+        safety_checker=None,
+        requires_safety_checker=False,
+        torch_dtype=torch.float16,
+        local_files_only=True,
+        use_safetensores=True
+    )
+
     device = select_device()
     logging.info(f"Using device: {device}")
     print(f"Using device: {device}")
 
-    pipeline = StableDiffusionPipeline.from_single_file(
-        pretrained_model_link_or_path=model_path,
-        safety_checker=None,
-        local_files_only=True
-    ).to(device)
+    pipeline.to(device)
 
+    return pipeline
+
+
+def generate_text2image(settings: GenerationSettings,
+                        pipeline,
+                        callback_on_step_end: Optional[Callable] = None) -> Image.Image:
+
+    device = select_device()
     generator = torch.Generator(device=device).manual_seed(settings.seed)
 
     image = pipeline(

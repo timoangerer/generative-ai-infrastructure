@@ -1,7 +1,8 @@
 import datetime
 
 from src.settings import get_settings
-from src.stable_diffusion import GenerationSettings, generate_text2image
+from src.stable_diffusion import (GenerationSettings, create_pipeline,
+                                  generate_text2image)
 from src.utils import get_model_path_by_name
 
 
@@ -26,16 +27,16 @@ def main():
         print(f"Step: {step}, Timestep: {timestep}")
         return callback_kwargs
 
+    pipeline = create_pipeline(model_path=model_path)
+
     img = generate_text2image(
-        settings=settings, model_path=model_path, callback_on_step_end=generation_progress_callback)
+        settings=settings, pipeline=pipeline, callback_on_step_end=generation_progress_callback)
 
-    assert img is not None
-
-    current_time = datetime.datetime.now().isoformat()
-    file_name = f"{current_time}.png"
-    img.save(file_name)
+    # current_time = datetime.datetime.now().isoformat()
+    # file_name = f"{current_time}.png"
+    # img.save(file_name)
 
 
 if __name__ == "__main__":
-    print("Starting sample generation...")
+    print("### Starting sample generation...")
     main()

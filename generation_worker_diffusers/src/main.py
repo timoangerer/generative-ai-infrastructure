@@ -4,7 +4,8 @@ import rpyc
 from rpyc.utils.server import ThreadedServer
 
 from src.settings import get_settings
-from src.stable_diffusion import GenerationSettings, generate_text2image
+from src.stable_diffusion import (GenerationSettings, create_pipeline,
+                                  generate_text2image)
 from src.utils import get_model_path_by_name
 
 settings = get_settings()
@@ -45,8 +46,10 @@ class MyService(rpyc.Service):
             seed=request.seed
         )
 
+        pipeline = create_pipeline(model_path=model_path)
+
         img = generate_text2image(
-            settings=generation_settings, model_path=model_path, callback_on_step_end=generation_progress_callback)
+            settings=generation_settings, pipeline=pipeline, callback_on_step_end=generation_progress_callback)
 
         return img
 
@@ -55,5 +58,5 @@ if __name__ == "__main__":
     server = ThreadedServer(MyService, port=18812, protocol_config={
         'allow_public_attrs': True,
     })
-    print("Starting RPC server")
+    print("### Starting RPC server")
     server.start()

@@ -19,11 +19,6 @@ class Txt2ImgGenerationRequest:
 
 
 def main():
-    conn = rpyc.connect("localhost", 18812, config={
-                        'allow_public_attrs': True})
-
-    remote_service = conn.root
-
     request = Txt2ImgGenerationRequest(
         prompt="A painting of a cat",
         negative_prompt="",
@@ -36,11 +31,19 @@ def main():
         model_name="v1-5-pruned-emaonly"
     )
 
-    result: Image.Image = remote_service.generate_txt2img(request)
-    print(f"The result is: {result.size}")
-
-    conn.close()
+    generate_txt2img_diffusers(request)
 
 
 if __name__ == "__main__":
     main()
+
+
+def generate_txt2img_diffusers(settings: Txt2ImgGenerationRequest):
+    conn = rpyc.connect("localhost", 18812, config={
+        'allow_public_attrs': True})
+    remote_service = conn.root
+
+    result: Image.Image = remote_service.generate_txt2img(settings)
+    print(f"The result is: {result.size}")
+
+    conn.close()
