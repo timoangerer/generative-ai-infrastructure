@@ -20,6 +20,7 @@ class GenerationSettings:
     sampler_name: str
     seed: int
 
+
 def select_device():
     if torch.cuda.is_available():
         return torch.device("cuda")
@@ -29,20 +30,23 @@ def select_device():
         return torch.device("cpu")
 
 
-
 def create_pipeline(model_path: Optional[Union[str, PathLike]]):
+    device = select_device()
+    logging.info(f"Using device: {device}")
+    print(f"Using device: {device}")
+
+    torch_dtype = torch.float32
+    if device == torch.device("cuda"):
+        torch_dtype = torch.float16
+
     pipeline = StableDiffusionPipeline.from_single_file(
         pretrained_model_link_or_path=model_path,
         safety_checker=None,
         requires_safety_checker=False,
-        torch_dtype=torch.float16,
+        torch_dtype=torch_dtype,
         local_files_only=True,
         use_safetensores=True
     )
-
-    device = select_device()
-    logging.info(f"Using device: {device}")
-    print(f"Using device: {device}")
 
     pipeline.to(device)
 
