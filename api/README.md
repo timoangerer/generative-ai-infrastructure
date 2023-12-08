@@ -1,5 +1,20 @@
 # Generative AI API
 
+## Docker
+
+Build the docker image:
+
+```bash
+docker build -t genai-api .
+```
+
+Push Docker image to Docker Hub:
+
+```bash
+docker tag genai-api:latest timoangerer/genai-api:latest
+docker push timoangerer/genai-api:latest
+```
+
 Run the following command to start the server with open telemetry enabled:
 
 ```bash
