@@ -15,6 +15,6 @@ resource "pulsar_topic" "topics" {
   topic_name = each.value
   tenant     = var.pulsar_tenant
   namespace  = var.pulsar_namespace
-  partitions = 0
+  partitions = 1
   topic_type = "persistent"
 }

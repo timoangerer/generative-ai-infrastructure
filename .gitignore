@@ -161,4 +161,4 @@ cython_debug/
 
 local-services
 *.env
-infrastructure/.terraform
+infrastructure/terraform/.terraform

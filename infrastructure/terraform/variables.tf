@@ -27,3 +27,8 @@ variable "pulsar_topics" {
   description = "List of topic names"
   type        = list(string)
 }
+
+variable "kubernetes_cluster_ip" {
+  description = "IP of the Kubernetes cluster"
+  type        = string
+}
