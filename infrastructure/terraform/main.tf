@@ -59,3 +59,18 @@ module "api" {
   trino_catalog               = var.trino_catalog
   trino_schema                = var.trino_schema
 }
+
+module "worker" {
+  source                      = "./modules/worker"
+  namespace                   = var.namespace
+  otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
+  pulsar_service_url          = var.pulsar_service_url
+  pulsar_broker_service_url   = var.pulsar_broker_service_url
+  pulsar_cluster              = var.pulsar_cluster
+  pulsar_tenant               = var.pulsar_tenant
+  pulsar_namespace            = var.pulsar_namespace
+  sd_server_url               = var.sd_server_url
+  s3_bucket_name              = var.s3_bucket_name
+  aws_access_key_id           = var.aws_access_key_id
+  aws_secret_access_key       = var.aws_secret_access_key
+}

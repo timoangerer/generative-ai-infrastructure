@@ -14,7 +14,14 @@ Use pip-tools and the pip-compile command to update the requirements.txt file. M
 ### Build the image
 
 ```bash
-docker build -t generation-worker .
+docker build -t genai-worker-diffusers .
+```
+
+### Push the image to docker hub
+
+```bash
+docker tag genai-worker-diffusers:latest timoangerer/genai-worker-diffusers:latest
+docker push timoangerer/genai-worker-diffusers:latest
 ```
 
 ### Run the image
