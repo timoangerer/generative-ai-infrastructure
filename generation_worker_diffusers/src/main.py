@@ -32,6 +32,13 @@ class Txt2ImgGenerationRequest:
     model_name: str
 
 
+def img_to_byte_array(img: Image.Image):
+    img_byte_arr = io.BytesIO()
+    img.save(img_byte_arr, format='PNG')
+    img_byte_arr = img_byte_arr.getvalue()
+
+    return img_byte_arr
+
 class MyService(rpyc.Service):
     def exposed_health_check(self):
         logger.info("Health check")
@@ -42,12 +49,9 @@ class MyService(rpyc.Service):
             device = select_device()
             logger.info(f"Sample mode is on, returning white image. Would have used device: {device}. Request: {request}")
 
-            image = Image.new("RGB", (512, 512), "white")
-
-            img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format='PNG')
-            img_byte_arr = img_byte_arr.getvalue()
-
+            img = Image.new("RGB", (512, 512), "white")
+            
+            img_byte_arr = img_to_byte_array(img)
             return img_byte_arr
         
         models_path = settings.models_path
@@ -75,7 +79,8 @@ class MyService(rpyc.Service):
         img = generate_text2image(
             settings=generation_settings, pipeline=pipeline, callback_on_step_end=generation_progress_callback)
 
-        return img
+        img_byte_arr = img_to_byte_array(img)
+        return img_byte_arr
 
 
 if __name__ == "__main__":

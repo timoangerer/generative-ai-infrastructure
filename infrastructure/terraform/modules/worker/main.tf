@@ -81,23 +81,23 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
           image             = "timoangerer/genai-worker-diffusers:latest"
           image_pull_policy = "Always"
 
-          # resources {
-          #   limits = {
-          #     "nvidia.com/gpu" = 1
-          #     # cpu    = "1000m"
-          #     # memory = "3000Mi"
-          #   }
+          resources {
+            limits = {
+              "nvidia.com/gpu" = 1
+              # cpu    = "1000m"
+              # memory = "3000Mi"
+            }
 
-          #   requests = {
-          #     "nvidia.com/gpu" = 1
-          #     # cpu    = "500m"
-          #     # memory = "512Mi"
-          #   }
-          # }
-          env {
-            name  = "SAMPLE_MODE"
-            value = "true"
+            requests = {
+              "nvidia.com/gpu" = 1
+              # cpu    = "500m"
+              # memory = "512Mi"
+            }
           }
+          # env {
+          #   name  = "SAMPLE_MODE"
+          #   value = "true"
+          # }
 
           env_from {
             config_map_ref {
