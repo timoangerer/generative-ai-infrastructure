@@ -2,3 +2,4 @@
 !src
 !pdm.lock
 !pyproject.toml
+*.env

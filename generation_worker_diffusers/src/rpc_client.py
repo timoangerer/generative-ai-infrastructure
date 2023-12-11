@@ -20,9 +20,9 @@ class Txt2ImgGenerationRequest:
 
 def generate_txt2img_diffusers(settings: Txt2ImgGenerationRequest):
     conn = rpyc.connect("localhost", 18812, config={
-        'allow_public_attrs': True})
+        'allow_public_attrs': True, "sync_request_timeout": 240})
     remote_service = conn.root
-
+    
     result: Image.Image = remote_service.generate_txt2img(settings)
     print(f"The result is: {result.size}")
 

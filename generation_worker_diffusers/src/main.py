@@ -1,12 +1,20 @@
 from dataclasses import dataclass
-
+import io
+import logging
+import sys
 import rpyc
 from rpyc.utils.server import ThreadedServer
-
+from PIL import Image
 from src.settings import get_settings
 from src.stable_diffusion import (GenerationSettings, create_pipeline,
-                                  generate_text2image)
+                                  generate_text2image, select_device)
 from src.utils import get_model_path_by_name
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+logger.addHandler(console_handler)
 
 settings = get_settings()
 
@@ -24,8 +32,28 @@ class Txt2ImgGenerationRequest:
     model_name: str
 
 
+def img_to_byte_array(img: Image.Image):
+    img_byte_arr = io.BytesIO()
+    img.save(img_byte_arr, format='PNG')
+    img_byte_arr = img_byte_arr.getvalue()
+
+    return img_byte_arr
+
 class MyService(rpyc.Service):
+    def exposed_health_check(self):
+        logger.info("Health check")
+        return "OK"
+
     def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest):
+        if settings.sample_mode:
+            device = select_device()
+            logger.info(f"Sample mode is on, returning white image. Would have used device: {device}. Request: {request}")
+
+            img = Image.new("RGB", (512, 512), "white")
+            
+            img_byte_arr = img_to_byte_array(img)
+            return img_byte_arr
+        
         models_path = settings.models_path
 
         model_path = get_model_path_by_name(
@@ -51,12 +79,13 @@ class MyService(rpyc.Service):
         img = generate_text2image(
             settings=generation_settings, pipeline=pipeline, callback_on_step_end=generation_progress_callback)
 
-        return img
+        img_byte_arr = img_to_byte_array(img)
+        return img_byte_arr
 
 
 if __name__ == "__main__":
     server = ThreadedServer(MyService, port=18812, protocol_config={
         'allow_public_attrs': True,
     })
-    print("### Starting RPC server")
+    logger.info("Starting RPC server")
     server.start()

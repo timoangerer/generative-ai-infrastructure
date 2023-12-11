@@ -31,7 +31,7 @@ def find_models(root_folder):
 
 
 def main():
-    root_folder = "models"
+    root_folder = "/home/ubuntu/generative-ai-infrastructure/models"
     models = find_models(root_folder)
     with open("models.json", "w") as json_file:
         json.dump(models, json_file, indent=4)

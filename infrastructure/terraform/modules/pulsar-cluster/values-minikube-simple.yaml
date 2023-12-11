@@ -47,5 +47,8 @@ broker:
     managedLedgerDefaultWriteQuorum: "1"
     managedLedgerDefaultAckQuorum: "1"
 
+    # Don't delete inactive topics
+    brokerDeleteInactiveTopicsEnabled: "false"
+
 proxy:
   replicaCount: 1
