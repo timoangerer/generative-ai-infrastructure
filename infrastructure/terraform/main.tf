@@ -39,10 +39,10 @@ module "pulsar_setup" {
   pulsar_proxy_url = "http://${var.kubernetes_cluster_ip}:${data.kubernetes_service.pulsar_proxy.spec[0].port[0].node_port}"
 }
 
-module "signoz" {
-  source    = "./modules/signoz"
-  namespace = var.namespace
-}
+# module "signoz" {
+#   source    = "./modules/signoz"
+#   namespace = var.namespace
+# }
 
 module "api" {
   source                      = "./modules/api"

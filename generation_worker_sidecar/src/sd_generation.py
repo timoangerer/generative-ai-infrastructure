@@ -77,25 +77,26 @@ class GenerateTxt2ImgError(Exception):
 
 
 def generate_txt2img(sd_server_url: str, generation_settings: Txt2ImgGenerationSettings) -> Image.Image:
-    response = None
-    try:
-        response = requests.post(
-            url=f'{sd_server_url}/sdapi/v1/txt2img', json=generation_settings.to_dict(), timeout=None)
-        response.raise_for_status()
+    return Image.new("RGB", (512, 512), "white")
+    # response = None
+    # try:
+    #     response = requests.post(
+    #         url=f'{sd_server_url}/sdapi/v1/txt2img', json=generation_settings.to_dict(), timeout=None)
+    #     response.raise_for_status()
 
-        raw_image = response.json().get("images")[0]
+    #     raw_image = response.json().get("images")[0]
 
-        image = Image.open(io.BytesIO(
-            base64.b64decode(raw_image.split(",", 1)[0])))
+    #     image = Image.open(io.BytesIO(
+    #         base64.b64decode(raw_image.split(",", 1)[0])))
 
-        return image
-    except requests.exceptions.HTTPError as err:
-        error_message = "An error occured trying to generate txt2img."
-        if response is not None:
-            error_message += f" Response Text: {response.text}"
-        raise GenerateTxt2ImgError(error_message) from err
-    except Exception as e:
-        raise GenerateTxt2ImgError(e) from e
+    #     return image
+    # except requests.exceptions.HTTPError as err:
+    #     error_message = "An error occured trying to generate txt2img."
+    #     if response is not None:
+    #         error_message += f" Response Text: {response.text}"
+    #     raise GenerateTxt2ImgError(error_message) from err
+    # except Exception as e:
+    #     raise GenerateTxt2ImgError(e) from e
 
 
 def save_image_locally(image):

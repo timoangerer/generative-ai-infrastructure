@@ -24,18 +24,25 @@ docker tag genai-worker-diffusers:latest timoangerer/genai-worker-diffusers:late
 docker push timoangerer/genai-worker-diffusers:latest
 ```
 
+All together:
+```bash
+docker build -t genai-worker-diffusers . &&
+docker tag genai-worker-diffusers:latest timoangerer/genai-worker-diffusers:latest &&
+docker push timoangerer/genai-worker-diffusers:latest
+```
+
 ### Run the image
 
 ```bash
-docker run --rm -v ./models:/models --env MODELS_PATH="/models" generation-worker
+docker run --rm -it -v ./models:/models --env MODELS_PATH="/models" genai-worker-diffusers
 ```
 
 With GPU enabled:
 ```bash
-docker run --rm -v ./models:/models --env MODELS_PATH="/models" -p 18812:18812 --gpus all generation-worker
+docker run --rm -it  -v ./models:/models --env MODELS_PATH="/models" -p 18812:18812 --gpus all genai-worker-diffusers
 ```
 
 For testing purposes:
 ```bash
-docker run --rm -v ./models:/models --env MODELS_PATH="/models" --gpus all generation-worker python -m src.sample_image
+docker run --rm -it -v ./models:/models --env MODELS_PATH="/models" --gpus all genai-worker-diffusers python -m src.sample_image
 ```

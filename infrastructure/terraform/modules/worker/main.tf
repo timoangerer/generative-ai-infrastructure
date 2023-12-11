@@ -12,16 +12,27 @@ resource "kubernetes_config_map" "genai-worker-sidecar-config" {
     pulsar_namespace              = var.pulsar_namespace
     sd_server_url                 = var.sd_server_url
     s3_bucket_name                = var.s3_bucket_name
-    aws_access_key_id             = var.aws_access_key_id
-    aws_secret_access_key         = var.aws_secret_access_key
+    AWS_ACCESS_KEY_ID             = var.aws_access_key_id
+    AWS_SECRET_ACCESS_KEY         = var.aws_secret_access_key
     "otel_service_name"           = "sidecar"
     "otel_exporter_otlp_endpoint" = var.otel_exporter_otlp_endpoint
   }
 }
 
+resource "kubernetes_config_map" "genai-worker-diffusers-config" {
+  metadata {
+    name      = "genai-worker-diffusers-config"
+    namespace = var.namespace
+  }
+
+  data = {
+    models_path = "/models"
+  }
+}
+
 resource "kubernetes_deployment" "genai_worker_deployment" {
   metadata {
-    name      = "genai-worker"
+    name      = "genai-worker-deployment"
     namespace = var.namespace
   }
 
@@ -63,6 +74,47 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
             config_map_ref {
               name = "genai-worker-sidecar-config"
             }
+          }
+        }
+        container {
+          name              = "genai-worker-diffusers"
+          image             = "timoangerer/genai-worker-diffusers:latest"
+          image_pull_policy = "Always"
+
+          # resources {
+          #   limits = {
+          #     "nvidia.com/gpu" = 1
+          #     # cpu    = "1000m"
+          #     # memory = "3000Mi"
+          #   }
+
+          #   requests = {
+          #     "nvidia.com/gpu" = 1
+          #     # cpu    = "500m"
+          #     # memory = "512Mi"
+          #   }
+          # }
+          env {
+            name  = "SAMPLE_MODE"
+            value = "true"
+          }
+
+          env_from {
+            config_map_ref {
+              name = "genai-worker-diffusers-config"
+            }
+          }
+
+          volume_mount {
+            name       = "storage"
+            mount_path = "/models"
+          }
+        }
+        volume {
+          name = "storage"
+
+          persistent_volume_claim {
+            claim_name = "models-pvc"
           }
         }
       }

@@ -163,3 +163,4 @@ local-services
 *.env
 infrastructure/terraform/.terraform
 models
+mounts

@@ -1,5 +1,6 @@
+from stable_diffusion.diffusers import generate_txt2img_diffusers
 from opentelemetry import trace, context
-import asyncio
+# import asyncio
 import atexit
 import sys
 import logging
@@ -72,7 +73,8 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         )
     )
     # type: ignore[end]
-    image = generate_txt2img(config.sd_server_url, txt2img_generation_settings)
+    sidecar_logger.info("Starting image generation...")
+    image = generate_txt2img_diffusers(txt2img_generation_settings)
     sidecar_logger.info("Generated image")
 
     # Store the generated image on S3
@@ -91,21 +93,21 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
 
 
 @tracer.start_as_current_span("sidecar_main")
-async def main():
+def main():
     sidecar_logger.info(
         "Started Sidecar service ")
 
-    checks = [
-        lambda: can_upload_to_s3(config.s3_bucket_name),
-        lambda: is_pulsar_topic_available(
-            config.pulsar_service_url, Topics.REQUESTED_TXT2IMG_GENERATION.value),
-        lambda: is_pulsar_topic_available(
-            config.pulsar_service_url, Topics.COMPLETED_TXT2IMG_GENERATION.value),
-        lambda: is_possible_to_generate_txt2img(config.sd_server_url),
-    ]
+    # checks = [
+    #     lambda: can_upload_to_s3(config.s3_bucket_name),
+    #     lambda: is_pulsar_topic_available(
+    #         config.pulsar_service_url, Topics.REQUESTED_TXT2IMG_GENERATION.value),
+    #     lambda: is_pulsar_topic_available(
+    #         config.pulsar_service_url, Topics.COMPLETED_TXT2IMG_GENERATION.value),
+    #     lambda: is_possible_to_generate_txt2img(config.sd_server_url),
+    # ]
 
     try:
-        while await all_checks_successful(checks):
+        while True:
             while True:
                 event = None
                 try:
@@ -138,6 +140,7 @@ async def main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    # asyncio.run(main())
+    main()
 
 atexit.register(pulsar_client.close)

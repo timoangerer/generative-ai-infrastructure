@@ -14,3 +14,11 @@ Push the image to docker hub:
 docker tag genai-worker-sidecar:latest timoangerer/genai-worker-sidecar:latest
 docker push timoangerer/genai-worker-sidecar:latest
 ```
+
+All together:
+
+```bash
+docker build -t genai-worker-sidecar . &&
+docker tag genai-worker-sidecar:latest timoangerer/genai-worker-sidecar:latest &&
+docker push timoangerer/genai-worker-sidecar:latest
+```
