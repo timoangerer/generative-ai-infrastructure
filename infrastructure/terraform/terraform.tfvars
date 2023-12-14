@@ -11,11 +11,11 @@ pulsar_service_url        = "http://pulsar-mini-proxy:80"
 pulsar_broker_service_url = "pulsar://pulsar-mini-proxy:6650/"
 
 # TRINO
-trino_host    = "http://localhost"
+trino_host    = "http://genai-trino-service"
 trino_port    = "8081"
 trino_user    = "<username>"
 trino_catalog = "pulsar"
-trino_schema  = "public/default"
+trino_schema  = "rocky/genai"
 
 # OPEN TELEMETRY
 otel_exporter_otlp_endpoint = "http://signoz-otel-collector:4317"

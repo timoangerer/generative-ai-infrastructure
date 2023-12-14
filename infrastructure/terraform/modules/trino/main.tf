@@ -50,3 +50,24 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
     }
   }
 }
+
+resource "kubernetes_service" "genai_trino_service" {
+  metadata {
+    name      = "genai-trino-service"
+    namespace = var.namespace
+  }
+
+  spec {
+    selector = {
+      app = "genai-trino"
+    }
+
+    port {
+      protocol    = "TCP"
+      port        = 8081
+      target_port = 8081
+    }
+
+    type = "ClusterIP"
+  }
+}
