@@ -50,5 +50,8 @@ broker:
     # Don't delete inactive topics
     brokerDeleteInactiveTopicsEnabled: "false"
 
+    # Enables to get latest message in Trino
+    bookkeeperExplicitLacIntervalInMills: "10"
+
 proxy:
   replicaCount: 1

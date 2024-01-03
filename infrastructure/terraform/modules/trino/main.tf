@@ -31,6 +31,8 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
             "-Dpulsar.web-service-url=http://pulsar-mini-proxy:80",
             "-Dpulsar.broker-binary-service-url=pulsar://pulsar-mini-proxy:6650",
             "-Dpulsar.metadata-url=zk:pulsar-mini-zookeeper:2181",
+            "-Dpulsar.bookkeeper-explicit-interval=1",  # Enables to get latest message
+            "-Dpulsar.bookkeeper-use-v2-protocol=false" # Enables to get latest message
           ]
 
 

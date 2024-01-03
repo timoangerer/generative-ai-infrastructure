@@ -22,4 +22,4 @@ otel_exporter_otlp_endpoint = "http://signoz-otel-collector:4317"
 
 # WORKER
 sd_server_url  = "http://127.0.0.1:7860"
-s3_bucket_name = "sd-generations-1"
+s3_bucket_name = "sd-generations-2"
