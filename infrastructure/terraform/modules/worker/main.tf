@@ -83,21 +83,21 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
 
           resources {
             limits = {
-              "nvidia.com/gpu" = 1
-              # cpu    = "1000m"
-              # memory = "3000Mi"
+              # "nvidia.com/gpu" = 1
+              cpu    = "1000m"
+              memory = "3000Mi"
             }
 
             requests = {
-              "nvidia.com/gpu" = 1
-              # cpu    = "500m"
-              # memory = "512Mi"
+              # "nvidia.com/gpu" = 1
+              cpu    = "500m"
+              memory = "512Mi"
             }
           }
-          # env {
-          #   name  = "SAMPLE_MODE"
-          #   value = "true"
-          # }
+          env {
+            name  = "SAMPLE_MODE"
+            value = "true"
+          }
 
           env_from {
             config_map_ref {

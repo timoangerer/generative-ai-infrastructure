@@ -36,13 +36,13 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
 
           resources {
             limits = {
-              cpu    = "4000m"
+              cpu    = "500m"
               memory = "2024Mi"
             }
 
             requests = {
-              cpu    = "2000m"
-              memory = "2024Mi"
+              cpu    = "250m"
+              memory = "1024Mi"
             }
           }
         }
