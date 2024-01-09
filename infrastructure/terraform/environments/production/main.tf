@@ -12,9 +12,16 @@ provider "kubernetes" {
   config_context = var.config_context
 }
 
-module "kubernetes" {
-  source    = "./modules/kubernetes"
+resource "kubernetes_namespace" "namespace" {
+  metadata {
+    name = var.namespace
+  }
+}
+
+module "eks" {
+  source    = "../../modules/eks"
   namespace = var.namespace
+  name      = var.namespace
 }
 
 # module "pulsar_cluster" {

@@ -1,3 +1,8 @@
+variable "config_context" {
+  description = "The Kubernetes context to deploy into"
+  type        = string
+}
+
 variable "namespace" {
   description = "The Kubernetes namespace to deploy into"
   type        = string
