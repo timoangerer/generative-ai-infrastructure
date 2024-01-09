@@ -145,6 +145,21 @@ module "eks" {
   }
 }
 
+resource "aws_eks_addon" "vpc_cni" {
+  cluster_name = module.eks.cluster_name
+  addon_name   = "vpc-cni"
+}
+
+resource "aws_eks_addon" "kube_proxy" {
+  cluster_name = module.eks.cluster_name
+  addon_name   = "kube-proxy"
+}
+
+resource "aws_eks_addon" "codedns" {
+  cluster_name = module.eks.cluster_name
+  addon_name   = "coredns"
+}
+
 
 # # https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/ 
 # data "aws_iam_policy" "ebs_csi_policy" {

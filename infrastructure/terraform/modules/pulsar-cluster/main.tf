@@ -25,11 +25,12 @@ resource "helm_release" "pulsar" {
   }
 
   set {
+    name  = "proxy.ports.http"
+    value = "8080"
+  }
+
+  set {
     name  = "pulsar_manager.service.type"
     value = "NodePort"
   }
 }
-
-# module "pulsar_setup" {
-#   source = "./modules/pulsar-setup"
-# }

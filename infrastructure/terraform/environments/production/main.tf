@@ -50,11 +50,32 @@ resource "kubernetes_namespace" "namespace" {
   }
 }
 
-# module "pulsar_cluster" {
-#   source         = "../../modules/pulsar-cluster"
-#   config_context = var.config_context
-#   namespace      = var.namespace
-# }
+provider "helm" {
+  kubernetes {
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = [
+        "eks",
+        "get-token",
+        "--cluster-name",
+        data.aws_eks_cluster.cluster.name
+      ]
+    }
+  }
+}
+
+module "pulsar_cluster" {
+  source = "../../modules/pulsar-cluster"
+
+  providers = {
+    helm = helm
+  }
+
+  namespace = var.namespace
+}
 
 # data "kubernetes_service" "pulsar_proxy" {
 #   depends_on = [module.pulsar_cluster]
