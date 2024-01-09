@@ -173,81 +173,50 @@ module "eks" {
 #   }
 # }
 
-resource "kubernetes_storage_class" "efs" {
-  metadata {
-    name = "efs-sc"
-
-  }
-  storage_provisioner = "efs.csi.aws.com"
-  parameters = {
-    provisioningMode = "efs-ap"
-    fileSystemId     = aws_efs_file_system.models_efs.id
-    directoryPerms   = "777"
-  }
-}
-resource "kubernetes_persistent_volume" "models_pv" {
-  metadata {
-    name = "models-pv"
-  }
-  spec {
-    capacity = {
-      storage = "20Gi"
-    }
-    access_modes       = ["ReadWriteMany"]
-    storage_class_name = kubernetes_storage_class.efs.metadata[0].name
-    persistent_volume_source {
-      csi {
-        driver        = "efs.csi.aws.com"
-        volume_handle = aws_efs_file_system.models_efs.id
-      }
-    }
-  }
-}
-
-resource "kubernetes_persistent_volume_claim" "models_pvc" {
-  metadata {
-    name      = "models-pvc"
-    namespace = var.namespace
-  }
-  spec {
-    access_modes       = ["ReadWriteMany"]
-    storage_class_name = kubernetes_storage_class.efs.metadata[0].name
-    resources {
-      requests = {
-        storage = "10Gi"
-      }
-    }
-    volume_name = kubernetes_persistent_volume.models_pv.id
-  }
-}
-
-# resource "kubernetes_pod" "test_pvc" {
+# resource "kubernetes_storage_class" "efs" {
 #   metadata {
-#     name = "test-pvc-pod"
-#     labels = {
-#       app = "test-pvc"
+#     name = "efs-sc"
+
+#   }
+#   storage_provisioner = "efs.csi.aws.com"
+#   parameters = {
+#     provisioningMode = "efs-ap"
+#     fileSystemId     = aws_efs_file_system.models_efs.id
+#     directoryPerms   = "777"
+#   }
+# }
+# resource "kubernetes_persistent_volume" "models_pv" {
+#   metadata {
+#     name = "models-pv"
+#   }
+#   spec {
+#     capacity = {
+#       storage = "20Gi"
+#     }
+#     access_modes       = ["ReadWriteMany"]
+#     storage_class_name = kubernetes_storage_class.efs.metadata[0].name
+#     persistent_volume_source {
+#       csi {
+#         driver        = "efs.csi.aws.com"
+#         volume_handle = aws_efs_file_system.models_efs.id
+#       }
 #     }
 #   }
+# }
 
+# resource "kubernetes_persistent_volume_claim" "models_pvc" {
+#   metadata {
+#     name      = "models-pvc"
+#     namespace = var.namespace
+#   }
 #   spec {
-#     container {
-#       image = "busybox"
-#       name  = "test"
-
-#       command = ["sh", "-c", "echo PVC is working > /mnt/testfile && cat /mnt/testfile"]
-
-#       volume_mount {
-#         mount_path = "/mnt"
-#         name       = "models-volume"
+#     access_modes       = ["ReadWriteMany"]
+#     storage_class_name = kubernetes_storage_class.efs.metadata[0].name
+#     resources {
+#       requests = {
+#         storage = "10Gi"
 #       }
 #     }
-
-#     volume {
-#       name = "models-volume"
-
-#       persistent_volume_claim {
-#         claim_name = "models-pvc"
-#       }
-#     }
+#     volume_name = kubernetes_persistent_volume.models_pv.id
 #   }
 # }

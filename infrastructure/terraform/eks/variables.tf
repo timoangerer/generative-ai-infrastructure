@@ -9,8 +9,3 @@ variable "region" {
   type        = string
   default     = "eu-central-1"
 }
-
-variable "namespace" {
-  description = "Kubernetes namespace"
-  type        = string
-}

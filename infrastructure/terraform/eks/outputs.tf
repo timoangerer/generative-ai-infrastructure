@@ -21,14 +21,7 @@ output "cluster_name" {
   value       = module.eks.cluster_name
 }
 
-# output "vpc_id" {
-#   value = module.vpc.vpc_id
-# }
-
-# output "vpc_cidr_block" {
-#   value = module.vpc.vpc_cidr_block
-# }
-
-# output "vpc_private_subnets" {
-#   value = module.vpc.private_subnets
-# }
+output "models_efs_id" {
+  description = "ID of the models EFS"
+  value       = aws_efs_file_system.models_efs.id
+}

@@ -1,5 +1,10 @@
 terraform {
   required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.48.0"
+    }
+
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "2.23.0"
@@ -7,9 +12,36 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "eks" {
+  backend = "local"
+
+  config = {
+    path = "../../eks/terraform.tfstate"
+  }
+}
+
+# Retrieve EKS cluster information
+provider "aws" {
+  region = data.terraform_remote_state.eks.outputs.region
+}
+
+data "aws_eks_cluster" "cluster" {
+  name = data.terraform_remote_state.eks.outputs.cluster_name
+}
+
 provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = var.config_context
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = [
+      "eks",
+      "get-token",
+      "--cluster-name",
+      data.aws_eks_cluster.cluster.name
+    ]
+  }
 }
 
 resource "kubernetes_namespace" "namespace" {
@@ -18,15 +50,10 @@ resource "kubernetes_namespace" "namespace" {
   }
 }
 
-module "eks" {
-  source    = "../../modules/eks"
-  namespace = var.namespace
-  name      = var.namespace
-}
-
 # module "pulsar_cluster" {
-#   source    = "./modules/pulsar-cluster"
-#   namespace = var.namespace
+#   source         = "../../modules/pulsar-cluster"
+#   config_context = var.config_context
+#   namespace      = var.namespace
 # }
 
 # data "kubernetes_service" "pulsar_proxy" {

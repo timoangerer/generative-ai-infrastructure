@@ -1,5 +1,5 @@
 # Kubernetes
-config_context        = "arn:aws:eks:eu-central-1:838016166894:cluster/genai-eks-vaA4Ja8k"
+config_context        = "arn:aws:eks:eu-central-1:838016166894:cluster/genai-eks-uVtLSP2l"
 namespace             = "genai"
 kubernetes_cluster_ip = "192.168.49.2"
 
