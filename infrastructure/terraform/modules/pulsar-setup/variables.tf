@@ -3,11 +3,6 @@ variable "namespace" {
   type        = string
 }
 
-variable "pulsar_proxy_url" {
-  description = "URL of the pulsar proxy"
-  type        = string
-}
-
 variable "pulsar_cluster" {
   description = "Name of the pulsar cluster"
   type        = string
