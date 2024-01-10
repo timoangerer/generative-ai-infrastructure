@@ -82,13 +82,13 @@ module "pulsar_cluster" {
   namespace = var.namespace
 }
 
-resource "null_resource" "port_forward_pulsar_proxy" {
-  provisioner "local-exec" {
-    command = <<EOT
-      kubectl port-forward services/pulsar-mini-proxy 8080:8080 6650:6650 -n genai
-    EOT
-  }
-}
+# resource "null_resource" "port_forward_pulsar_proxy" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       kubectl port-forward services/pulsar-mini-proxy 8080:8080 6650:6650 -n genai
+#     EOT
+#   }
+# }
 
 provider "pulsar" {
   web_service_url = "http://127.0.0.1:8080"
@@ -101,8 +101,6 @@ module "pulsar_setup" {
   pulsar_namespace = var.pulsar_namespace
   pulsar_tenant    = var.pulsar_tenant
   pulsar_topics    = var.pulsar_topics
-
-  depends_on = [null_resource.port_forward_pulsar_proxy]
 }
 
 # # module "signoz" {
@@ -110,21 +108,21 @@ module "pulsar_setup" {
 # #   namespace = var.namespace
 # # }
 
-# module "api" {
-#   source                      = "./modules/api"
-#   namespace                   = var.namespace
-#   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
-#   pulsar_service_url          = var.pulsar_service_url
-#   pulsar_broker_service_url   = var.pulsar_broker_service_url
-#   pulsar_cluster              = var.pulsar_cluster
-#   pulsar_tenant               = var.pulsar_tenant
-#   pulsar_namespace            = var.pulsar_namespace
-#   trino_host                  = var.trino_host
-#   trino_port                  = var.trino_port
-#   trino_user                  = var.trino_user
-#   trino_catalog               = var.trino_catalog
-#   trino_schema                = var.trino_schema
-# }
+module "api" {
+  source                      = "../../modules/api"
+  namespace                   = var.namespace
+  otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
+  pulsar_service_url          = var.pulsar_service_url
+  pulsar_broker_service_url   = var.pulsar_broker_service_url
+  pulsar_cluster              = var.pulsar_cluster
+  pulsar_tenant               = var.pulsar_tenant
+  pulsar_namespace            = var.pulsar_namespace
+  trino_host                  = var.trino_host
+  trino_port                  = var.trino_port
+  trino_user                  = var.trino_user
+  trino_catalog               = var.trino_catalog
+  trino_schema                = var.trino_schema
+}
 
 # module "worker" {
 #   source                      = "./modules/worker"
