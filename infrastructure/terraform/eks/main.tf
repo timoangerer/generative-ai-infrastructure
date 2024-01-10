@@ -130,11 +130,21 @@ module "eks" {
 
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
     }
 
     two = {
       name = "node-group-2"
+
+      instance_types = ["t3.small"]
+
+      min_size     = 1
+      max_size     = 2
+      desired_size = 2
+    }
+
+    three = {
+      name = "node-group-3"
 
       instance_types = ["t3.small"]
 

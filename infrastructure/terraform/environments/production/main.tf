@@ -200,7 +200,7 @@ module "worker" {
   aws_secret_access_key       = var.aws_secret_access_key
 }
 
-# module "trino" {
-#   source    = "./modules/trino"
-#   namespace = var.namespace
-# }
+module "trino" {
+  source    = "../../modules/trino"
+  namespace = var.namespace
+}

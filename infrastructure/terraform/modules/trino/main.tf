@@ -27,8 +27,8 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
           image_pull_policy = "IfNotPresent"
           command = ["./bin/pulsar", "sql-worker", "run",
             "-Dconnector.name=pulsar",
-            "-Dpulsar.broker-service-url=http://pulsar-mini-proxy:80",
-            "-Dpulsar.web-service-url=http://pulsar-mini-proxy:80",
+            "-Dpulsar.broker-service-url=http://pulsar-mini-proxy:8080",
+            "-Dpulsar.web-service-url=http://pulsar-mini-proxy:8080",
             "-Dpulsar.broker-binary-service-url=pulsar://pulsar-mini-proxy:6650",
             "-Dpulsar.metadata-url=zk:pulsar-mini-zookeeper:2181",
             "-Dpulsar.bookkeeper-explicit-interval=1",  # Enables to get latest message
@@ -44,7 +44,7 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
 
             requests = {
               cpu    = "250m"
-              memory = "1024Mi"
+              memory = "500Mi"
             }
           }
         }
