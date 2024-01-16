@@ -35,16 +35,15 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
             "-Dpulsar.bookkeeper-use-v2-protocol=false" # Enables to get latest message
           ]
 
-
           resources {
             limits = {
-              cpu    = "500m"
-              memory = "2024Mi"
+              cpu    = "4000m"
+              memory = "6Gi"
             }
 
             requests = {
-              cpu    = "250m"
-              memory = "500Mi"
+              cpu    = "2000m"
+              memory = "4Gi"
             }
           }
         }

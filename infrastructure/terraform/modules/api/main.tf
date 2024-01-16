@@ -51,13 +51,13 @@ resource "kubernetes_deployment" "genai_api_deployment" {
 
           resources {
             limits = {
-              cpu    = "500m"
-              memory = "512Mi"
+              cpu    = "2000m"
+              memory = "1.5Gi"
             }
 
             requests = {
-              cpu    = "100m"
-              memory = "256Mi"
+              cpu    = "1000m"
+              memory = "1Gi"
             }
           }
 

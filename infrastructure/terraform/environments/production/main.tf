@@ -125,6 +125,14 @@ provider "helm" {
   }
 }
 
+resource "helm_release" "metrics_server" {
+  name       = "metrics-server"
+  namespace  = var.namespace
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+  version    = "3.11.0"
+}
+
 module "pulsar_cluster" {
   source = "../../modules/pulsar-cluster"
 

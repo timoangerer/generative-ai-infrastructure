@@ -60,13 +60,13 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
 
           resources {
             limits = {
-              cpu    = "500m"
-              memory = "512Mi"
+              cpu    = "1000m"
+              memory = "1Gi"
             }
 
             requests = {
-              cpu    = "100m"
-              memory = "256Mi"
+              cpu    = "500m"
+              memory = "0.5Gi"
             }
           }
 
@@ -85,13 +85,13 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
             limits = {
               # "nvidia.com/gpu" = 1
               cpu    = "1000m"
-              memory = "3000Mi"
+              memory = "1Gi"
             }
 
             requests = {
               # "nvidia.com/gpu" = 1
               cpu    = "500m"
-              memory = "512Mi"
+              memory = "0.5Gi"
             }
           }
           env {
