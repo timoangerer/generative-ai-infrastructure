@@ -135,27 +135,6 @@ module "pulsar_cluster" {
   namespace = var.namespace
 }
 
-# resource "null_resource" "port_forward_pulsar_proxy" {
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       kubectl port-forward services/pulsar-mini-proxy 8080:8080 6650:6650 -n genai
-#     EOT
-#   }
-# }
-
-provider "pulsar" {
-  web_service_url = "http://127.0.0.1:8080"
-}
-
-module "pulsar_setup" {
-  source           = "../../modules/pulsar-setup"
-  namespace        = var.namespace
-  pulsar_cluster   = var.pulsar_cluster
-  pulsar_namespace = var.pulsar_namespace
-  pulsar_tenant    = var.pulsar_tenant
-  pulsar_topics    = var.pulsar_topics
-}
-
 # # module "signoz" {
 # #   source    = "./modules/signoz"
 # #   namespace = var.namespace

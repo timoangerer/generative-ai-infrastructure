@@ -7,7 +7,7 @@ pulsar_cluster            = "pulsar-mini"
 pulsar_namespace          = "genai"
 pulsar_tenant             = "rocky"
 pulsar_topics             = ["requested_txt2img_generation", "dlq_requested_txt2img_generation", "completed_txt2img_generation"]
-pulsar_service_url        = "http://pulsar-mini-proxy:80"
+pulsar_service_url        = "http://pulsar-mini-proxy:8080"
 pulsar_broker_service_url = "pulsar://pulsar-mini-proxy:6650/"
 
 # TRINO

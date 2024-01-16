@@ -1,3 +1,9 @@
+variable "pulsar_service_url" {
+  description = "Pulsar service url"
+  type        = string
+  default     = "http://127.0.0.1:8080"
+}
+
 variable "namespace" {
   description = "Name of the kubernetes namespace"
   type        = string

@@ -7,3 +7,6 @@ terraform {
   }
 }
 
+provider "pulsar" {
+  web_service_url = var.pulsar_service_url
+}
