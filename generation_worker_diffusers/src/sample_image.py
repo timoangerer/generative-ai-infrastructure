@@ -7,10 +7,9 @@ from src.utils import get_model_path_by_name
 
 
 def main():
-    models_path = get_settings().models_path
+    models_dir = get_settings().models_dir
 
-    model_path = get_model_path_by_name(
-        model_name="v1-5-pruned-emaonly", root_folder=models_path, json_file="models.json")
+    model_path = get_model_path_by_name(model_name="v1-5-pruned-emaonly", models_dir=models_dir)
 
     settings = GenerationSettings(
         prompt="A painting of a cat",

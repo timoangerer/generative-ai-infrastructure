@@ -5,13 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: sample_image module",
+            "type": "python",
+            "request": "launch",
+            "module": "src.sample_image",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Main.py module",
             "type": "python",
             "request": "launch",
             "module": "src.main",
             "justMyCode": true,
             "env": {
-                "MODELS_PATH": "./models"
+                "MODELS_DIR": "./models"
             }
         }
     ]

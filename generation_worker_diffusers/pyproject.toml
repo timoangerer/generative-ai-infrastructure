@@ -24,7 +24,7 @@ license = {text = "MIT"}
 
 [tool.pdm.scripts]
 start.cmd = "python -m src.main"
-start.env = {MODELS_PATH = "./models"}
+start.env = {MODELS_DIR = "./models"}
 
 [tool.pdm.dev-dependencies]
 dev = [

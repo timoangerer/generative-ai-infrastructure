@@ -34,12 +34,12 @@ docker push timoangerer/genai-worker-diffusers:latest
 ### Run the image
 
 ```bash
-docker run --rm -it -v ./models:/models --env MODELS_PATH="/models" genai-worker-diffusers
+docker run --rm -it -v ./models:/models --env MODELS_DIR="/models" genai-worker-diffusers
 ```
 
 With GPU enabled:
 ```bash
-docker run --rm -it  -v ./models:/models --env MODELS_PATH="/models" -p 18812:18812 --gpus all genai-worker-diffusers
+docker run --rm -it  -v ./models:/models --env MODELS_DIR="/models" -p 18812:18812 --gpus all genai-worker-diffusers
 ```
 
 ### Localy run the image (for testing purposes)
@@ -56,14 +56,29 @@ docker build -t genai-worker-diffusers .
 sudo wget "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors?download=true" -O ./models/v1-5-pruned-emaonly.safetensors
 ```
 
-3. Index the model file.
+3. Create a .env file
 
 ```bash
-python index_models_util.py  ./models/
+echo "MODELS_DIR=./models" > .env
 ```
 
 4. Run the docker image for sample generation.
 
 ```bash
-docker run --rm -it -v ./models:/models --env MODELS_PATH="/models" --gpus all genai-worker-diffusers python -m src.sample_image
+docker run --rm -it -v ./models:/models --env MODELS_DIR="/models" --gpus all genai-worker-diffusers python -m src.sample_image
+```
+
+Or run the the python script directly without docker
+
+5. Download additional necessary models for diffusers.
+
+```bash
+source .venv/bin/activate
+python download_hf_models.py ~/.cache/huggingface
+```
+
+6. Run the python module for sample image generation
+
+```bash
+python -m src.sample_image
 ```
