@@ -1,7 +1,7 @@
 import hashlib
 import json
 import os
-
+import argparse
 
 def compute_hash(filepath):
     """Compute the SHA256 hash of the file."""
@@ -11,7 +11,6 @@ def compute_hash(filepath):
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
-
 
 def find_models(root_folder):
     """Find all model files in the given root folder."""
@@ -29,13 +28,15 @@ def find_models(root_folder):
             })
     return models
 
-
 def main():
-    root_folder = "/home/ubuntu/generative-ai-infrastructure/models"
+    parser = argparse.ArgumentParser(description='Process model folder path.')
+    parser.add_argument('model_folder', type=str, help='The path to the model folder')
+    args = parser.parse_args()
+    
+    root_folder = args.model_folder
     models = find_models(root_folder)
     with open("models.json", "w") as json_file:
         json.dump(models, json_file, indent=4)
-
 
 if __name__ == "__main__":
     main()

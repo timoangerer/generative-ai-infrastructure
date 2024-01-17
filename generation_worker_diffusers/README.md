@@ -42,7 +42,28 @@ With GPU enabled:
 docker run --rm -it  -v ./models:/models --env MODELS_PATH="/models" -p 18812:18812 --gpus all genai-worker-diffusers
 ```
 
-For testing purposes:
+### Localy run the image (for testing purposes)
+
+1. Build the image.
+
+```bash
+docker build -t genai-worker-diffusers .
+```
+
+2. Download a test model for image generation.
+
+```bash
+sudo wget "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors?download=true" -O ./models/v1-5-pruned-emaonly.safetensors
+```
+
+3. Index the model file.
+
+```bash
+python index_models_util.py  ./models/
+```
+
+4. Run the docker image for sample generation.
+
 ```bash
 docker run --rm -it -v ./models:/models --env MODELS_PATH="/models" --gpus all genai-worker-diffusers python -m src.sample_image
 ```
