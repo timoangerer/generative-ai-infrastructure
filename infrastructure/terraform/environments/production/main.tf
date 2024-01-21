@@ -172,6 +172,11 @@ module "api" {
   trino_schema                = var.trino_schema
 }
 
+module "download_models" {
+  source    = "../../modules/models-drive"
+  namespace = var.namespace
+}
+
 module "worker" {
   source                      = "../../modules/worker"
   namespace                   = var.namespace
