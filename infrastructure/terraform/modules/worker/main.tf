@@ -53,6 +53,10 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
       }
 
       spec {
+        node_selector = {
+          "workload-type" = "gpu"
+        }
+
         container {
           name              = "genai-worker-sidecar"
           image             = "timoangerer/genai-worker-sidecar:latest"
@@ -83,20 +87,16 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
 
           resources {
             limits = {
-              # "nvidia.com/gpu" = 1
-              cpu    = "1000m"
-              memory = "1Gi"
+              "nvidia.com/gpu" = 1
             }
 
             requests = {
-              # "nvidia.com/gpu" = 1
-              cpu    = "500m"
-              memory = "0.5Gi"
+              "nvidia.com/gpu" = 1
             }
           }
           env {
             name  = "SAMPLE_MODE"
-            value = "true"
+            value = "false"
           }
 
           env_from {

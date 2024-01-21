@@ -145,6 +145,34 @@ module "eks" {
           }
         }
       }
+    },
+    gpu_node_group = {
+      name     = "gpu_node_group"
+      ami_type = "AL2_x86_64_GPU"
+
+      instance_types = ["g4dn.xlarge"]
+
+      min_size     = 0
+      max_size     = 1
+      desired_size = 1
+
+      labels = {
+        workload-type = "gpu"
+      }
+
+      block_device_mappings = {
+        xvda = {
+          device_name = "/dev/xvda"
+          ebs = {
+            volume_size           = 40
+            volume_type           = "gp3"
+            iops                  = 1000
+            throughput            = 125
+            encrypted             = false
+            delete_on_termination = true
+          }
+        }
+      }
     }
   }
 }

@@ -133,6 +133,14 @@ resource "helm_release" "metrics_server" {
   version    = "3.11.0"
 }
 
+resource "helm_release" "nvidia_k8s_device_plugin" {
+  name       = "nvidia-k8s-device-plugin"
+  namespace  = var.namespace
+  repository = "https://nvidia.github.io/k8s-device-plugin"
+  chart      = "nvidia-device-plugin "
+  version    = "0.14.3"
+}
+
 module "pulsar_cluster" {
   source = "../../modules/pulsar-cluster"
 
