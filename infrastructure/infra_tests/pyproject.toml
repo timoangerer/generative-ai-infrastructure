@@ -8,6 +8,7 @@ authors = [
 dependencies = [
     "pytest>=7.4.4",
     "requests>=2.31.0",
+    "locust>=2.20.1",
 ]
 requires-python = "==3.10.*"
 readme = "README.md"
