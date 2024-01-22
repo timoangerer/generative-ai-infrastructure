@@ -82,3 +82,9 @@ python download_hf_models.py ~/.cache/huggingface
 ```bash
 python -m src.sample_image
 ```
+
+### Localy run the RPC server
+
+```bash
+docker run --rm -it -v ./models:/models -p 18812:18812 -e MODELS_DIR=/models --gpus all genai-worker-diffusers
+```

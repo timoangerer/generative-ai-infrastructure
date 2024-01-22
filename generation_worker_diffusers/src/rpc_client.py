@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import io
 
 import rpyc
 from PIL import Image
@@ -23,8 +24,9 @@ def generate_txt2img_diffusers(settings: Txt2ImgGenerationRequest):
         'allow_public_attrs': True, "sync_request_timeout": 240})
     remote_service = conn.root
     
-    result: Image.Image = remote_service.generate_txt2img(settings)
-    print(f"The result is: {result.size}")
+    img_byte_arr = remote_service.generate_txt2img(settings)
+    image = Image.open(io.BytesIO(img_byte_arr))
+    print(f"The result is: {image.size}")
 
     conn.close()
 

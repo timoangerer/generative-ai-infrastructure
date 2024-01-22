@@ -39,6 +39,10 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
   spec {
     replicas = 1
 
+    strategy {
+      type = "Recreate"
+    }
+
     selector {
       match_labels = {
         app = "genai-worker"
@@ -94,9 +98,15 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
               "nvidia.com/gpu" = 1
             }
           }
+
           env {
             name  = "SAMPLE_MODE"
             value = "false"
+          }
+
+          env {
+            name  = "MODELS_DIR"
+            value = "/models"
           }
 
           env_from {
