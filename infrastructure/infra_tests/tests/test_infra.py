@@ -43,16 +43,16 @@ def test_image_generation(image_generation_data):
     # Polling GET /images until the image with the correct ID is found
     image_info = None
     for attempt in range(1, 3):
+        time.sleep(8)
         print(f"Polling attempt {attempt}")
         
         get_response = requests.get(f"{BASE_URL}/images")
         assert get_response.status_code == 200
         images = get_response.json()
 
-        image_info = next((img for img in images if img.get('id') == request_id), None)
+        image_info = next((img for img in images if img.get('id') == request_id and img.get("image_url") is not None), None)
         if image_info:
             break
-        time.sleep(5)
 
     assert image_info, "No image was generated with the given ID"
 
