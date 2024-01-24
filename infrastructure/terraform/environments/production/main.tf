@@ -151,10 +151,10 @@ module "pulsar_cluster" {
   namespace = var.namespace
 }
 
-# # module "signoz" {
-# #   source    = "./modules/signoz"
-# #   namespace = var.namespace
-# # }
+module "signoz" {
+  source    = "../../modules/signoz"
+  namespace = var.namespace
+}
 
 module "api" {
   source                      = "../../modules/api"
