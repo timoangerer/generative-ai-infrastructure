@@ -20,8 +20,6 @@ setup_otel()
 
 tracer = trace.get_tracer(__name__)
 
-logging.basicConfig(level=logging.WARNING)
-
 pulsar_logger = logging.getLogger('pulsar')
 
 sidecar_logger = logging.getLogger('sidecar')
@@ -50,7 +48,7 @@ completed_txt2img_generation_producer = pulsar_client.create_producer(
     schema=AvroSchema(CompletedTxt2ImgGenerationEvent))  # type: ignore
 
 
-@tracer.start_as_current_span("process_requested_txt2img_generation_event")
+@tracer.start_as_current_span("sidecar.requested_txt2img_generation_event process")
 def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent):
     sidecar_logger.info("Process event: %s, '%s'", event.id,
                         event.generation_settings.prompt)
@@ -73,14 +71,13 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         )
     )
     # type: ignore[end]
-    sidecar_logger.info("Starting image generation...")
     image = generate_txt2img_diffusers(txt2img_generation_settings)
     sidecar_logger.info("Generated image")
 
-    # Store the generated image on S3
-    with tracer.start_as_current_span("upload image"):
+    # Store the generated image
+    with tracer.start_as_current_span("Save image"):
         upload_image_to_s3(image, config.s3_bucket_name, f"{event.id}.jpg")
-        sidecar_logger.info("Uploaded image to S3")
+        sidecar_logger.info("Saved image")
 
     # Produce event for generated image
     completed_txt2img_generation_event = CompletedTxt2ImgGenerationEvent(
@@ -92,10 +89,10 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         completed_txt2img_generation_event)
 
 
-@tracer.start_as_current_span("sidecar_main")
+@tracer.start_as_current_span("sidecar.requested_txt2img_generation_event receive")
 def main():
     sidecar_logger.info(
-        "Started Sidecar service ")
+        "Started Sidecar service")
 
     # checks = [
     #     lambda: can_upload_to_s3(config.s3_bucket_name),

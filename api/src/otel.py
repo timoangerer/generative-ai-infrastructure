@@ -36,6 +36,10 @@ def setup_otel_tracing():
 
 
 def setup_otel_logging():
+    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+    date_format = '%Y-%m-%d %H:%M:%S'
+    logging.basicConfig(level=logging.INFO, format=log_format, datefmt=date_format)
+
     logger_provider = LoggerProvider(resource=resource)
     set_logger_provider(logger_provider)
 
@@ -46,9 +50,7 @@ def setup_otel_logging():
 
     # Attach OTLP handler to root logger
     logging.getLogger().addHandler(handler)
-    logging.getLogger().addHandler(logging.StreamHandler()
-                                   )  # Handler to print to console
-
+ 
     log_level = logging.INFO
 
     logging.getLogger().setLevel(log_level)

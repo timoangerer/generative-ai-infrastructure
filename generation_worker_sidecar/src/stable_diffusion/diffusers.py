@@ -1,18 +1,10 @@
 from dataclasses import dataclass
 import io
-import logging
-import sys
 
 import rpyc
 from PIL import Image
 
 from sd_generation import Txt2ImgGenerationSettings
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-logger.addHandler(console_handler)
 
 # Shape of the request has to be the same as in the server
 @dataclass

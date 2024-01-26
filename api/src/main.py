@@ -15,9 +15,10 @@ from pulsar_utils import close_pulsar_resources, send_generation_request
 from repository import DBError
 
 config = get_config()
-setup_otel()
 
-logger = logging.getLogger(__name__)
+setup_otel()
+logger = logging.getLogger("api")
+
 
 app = FastAPI()
 
