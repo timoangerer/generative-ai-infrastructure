@@ -10,11 +10,6 @@ terraform {
       version = "2.23.0"
     }
 
-    pulsar = {
-      source  = "streamnative/pulsar"
-      version = "0.2.0"
-    }
-
     helm = {
       source  = "hashicorp/helm"
       version = "2.11.0"
@@ -54,7 +49,7 @@ provider "kubernetes" {
   }
 }
 
-resource "kubernetes_namespace" "namespace" {
+resource "kubernetes_namespace" "genai" {
   metadata {
     name = var.namespace
   }
@@ -94,7 +89,7 @@ resource "kubernetes_persistent_volume" "models_pv" {
 resource "kubernetes_persistent_volume_claim" "models_pvc" {
   metadata {
     name      = "models-pvc"
-    namespace = var.namespace
+    namespace = kubernetes_namespace.genai.metadata[0].name
   }
   spec {
     access_modes       = ["ReadWriteMany"]
@@ -127,7 +122,7 @@ provider "helm" {
 
 resource "helm_release" "metrics_server" {
   name       = "metrics-server"
-  namespace  = var.namespace
+  namespace  = kubernetes_namespace.genai.metadata[0].name
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   version    = "3.11.0"
@@ -135,7 +130,7 @@ resource "helm_release" "metrics_server" {
 
 resource "helm_release" "nvidia_k8s_device_plugin" {
   name       = "nvidia-k8s-device-plugin"
-  namespace  = var.namespace
+  namespace  = kubernetes_namespace.genai.metadata[0].name
   repository = "https://nvidia.github.io/k8s-device-plugin"
   chart      = "nvidia-device-plugin "
   version    = "0.14.3"
@@ -148,17 +143,17 @@ module "pulsar_cluster" {
     helm = helm
   }
 
-  namespace = var.namespace
+  namespace = kubernetes_namespace.genai.metadata[0].name
 }
 
 module "signoz" {
   source    = "../../modules/signoz"
-  namespace = var.namespace
+  namespace = kubernetes_namespace.genai.metadata[0].name
 }
 
 module "api" {
   source                      = "../../modules/api"
-  namespace                   = var.namespace
+  namespace                   = kubernetes_namespace.genai.metadata[0].name
   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
   pulsar_service_url          = var.pulsar_service_url
   pulsar_broker_service_url   = var.pulsar_broker_service_url
@@ -174,12 +169,12 @@ module "api" {
 
 module "download_models" {
   source    = "../../modules/models-drive"
-  namespace = var.namespace
+  namespace = kubernetes_namespace.genai.metadata[0].name
 }
 
 module "worker" {
   source                      = "../../modules/worker"
-  namespace                   = var.namespace
+  namespace                   = kubernetes_namespace.genai.metadata[0].name
   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
   pulsar_service_url          = var.pulsar_service_url
   pulsar_broker_service_url   = var.pulsar_broker_service_url
@@ -194,5 +189,5 @@ module "worker" {
 
 module "trino" {
   source    = "../../modules/trino"
-  namespace = var.namespace
+  namespace = kubernetes_namespace.genai.metadata[0].name
 }
