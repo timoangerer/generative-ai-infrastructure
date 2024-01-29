@@ -58,7 +58,8 @@ class MyService(rpyc.Service):
         models_dir = settings.models_dir
         model_path = get_model_path_by_name(
             model_name=request.model_name, models_dir=models_dir)
-
+        if model_path is None:
+            raise Exception(f'Model "{request.model_name}" not found')
 
         generation_settings = GenerationSettings(
             prompt=request.prompt,

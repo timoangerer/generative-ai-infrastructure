@@ -41,7 +41,7 @@ def generate_txt2img_diffusers(settings: Txt2ImgGenerationSettings, iter_duratio
         num_inference_steps=settings.steps,
         sampler_name=settings.sampler_name,
         seed=settings.seed,
-        model_name="v1-5-pruned-emaonly"
+        model_name=settings.override_settings.sd_model_checkpoint
     )
 
     img = generate_txt2img_diffusers_rpc(request, iter_duration_callback)

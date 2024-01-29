@@ -1,8 +1,6 @@
 from stable_diffusion.diffusers import generate_txt2img_diffusers
 from opentelemetry import trace, context
-# import asyncio
 import atexit
-import sys
 import logging
 import pulsar
 from pulsar import ConsumerDeadLetterPolicy
@@ -10,9 +8,9 @@ from config import Config, get_config
 from pulsar.schema import AvroSchema
 from otel import setup_otel
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent
-from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings, generate_txt2img
+from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings
 from topics import Topics
-from utils import all_checks_successful, can_upload_to_s3, is_possible_to_generate_txt2img, is_pulsar_topic_available, upload_image_to_s3
+from utils import upload_image_to_s3
 from opentelemetry.trace.propagation.tracecontext import \
     TraceContextTextMapPropagator
 
@@ -36,6 +34,7 @@ requested_txt2img_generation_consumer = pulsar_client.subscribe(
     schema=AvroSchema(RequestedTxt2ImgGenerationEvent),  # type: ignore
     receiver_queue_size=0,
     consumer_type=pulsar.ConsumerType.Shared,
+    negative_ack_redelivery_delay_ms=60000,
     dead_letter_policy=ConsumerDeadLetterPolicy(
         max_redeliver_count=3,
         dead_letter_topic=Topics.DLQ_REQUESTED_TXT2IMG_GENERATION.value
@@ -99,50 +98,31 @@ def main():
     sidecar_logger.info(
         "Started Sidecar service")
 
-    # checks = [
-    #     lambda: can_upload_to_s3(config.s3_bucket_name),
-    #     lambda: is_pulsar_topic_available(
-    #         config.pulsar_service_url, Topics.REQUESTED_TXT2IMG_GENERATION.value),
-    #     lambda: is_pulsar_topic_available(
-    #         config.pulsar_service_url, Topics.COMPLETED_TXT2IMG_GENERATION.value),
-    #     lambda: is_possible_to_generate_txt2img(config.sd_server_url),
-    # ]
+    while True:
+        sidecar_logger.info("Waiting for message...")
 
-    try:
-        while True:
-            while True:
-                event = None
-                try:
-                    sidecar_logger.info("Waiting for message...")
-                    event = requested_txt2img_generation_consumer.receive()
-                    event_value: RequestedTxt2ImgGenerationEvent = event.value()
+        event = requested_txt2img_generation_consumer.receive()
+        event_value: RequestedTxt2ImgGenerationEvent = event.value()
 
-                    ctx = TraceContextTextMapPropagator().extract(carrier=event.properties())
-                    context.attach(ctx)
+        ctx = TraceContextTextMapPropagator().extract(carrier=event.properties())
+        context.attach(ctx)
 
-                    process_requested_txt2img_generation_event(config=config,
-                                                               event=event_value)
+        try:
+            process_requested_txt2img_generation_event(config=config, event=event_value)  
+            requested_txt2img_generation_consumer.acknowledge(event)
+            sidecar_logger.info(
+                f"Acknowledged message '{event_value.id}'")
+        except Exception as e:
+            sidecar_logger.error(
+                f"Error while processing message '{event_value.id}': {str(e)}")
+            requested_txt2img_generation_consumer.negative_acknowledge(
+                event)
+            sidecar_logger.error(
+                f"Negative acknowledged message '{event_value.id}'")
 
-                    requested_txt2img_generation_consumer.acknowledge(event)
-                    sidecar_logger.info(
-                        "Acknowledged message '%s'", event_value.id)
-                except Exception as e:
-                    if event is not None:
-                        event_value: RequestedTxt2ImgGenerationEvent = event.value()
-                        sidecar_logger.error(
-                            f"Error while processing message '{event_value.id}': {str(e)}")
-                        requested_txt2img_generation_consumer.negative_acknowledge(
-                            event)
-                        requested_txt2img_generation_consumer.redeliver_unacknowledged_messages()
-                        sidecar_logger.error(
-                            f"Negative acknowledged message '{event_value.id}'")
-                    break
-    except Exception as e:
-        sidecar_logger.error(f"Error in Sidecar: {str(e)}")
-        sys.exit(1)
+        
 
 if __name__ == '__main__':
-    # asyncio.run(main())
     main()
 
 atexit.register(pulsar_client.close)

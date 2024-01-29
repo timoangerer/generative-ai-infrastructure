@@ -1,11 +1,3 @@
-import requests
-import io
-import base64
-import os
-from PIL import Image
-import datetime
-
-
 class Txt2ImgGenerationOverrideSettings():
     def __init__(self, sd_model_checkpoint: str):
         self.sd_model_checkpoint = sd_model_checkpoint
@@ -70,39 +62,3 @@ class Txt2ImgGenerationSettings():
             override_settings=Txt2ImgGenerationOverrideSettings.from_dict(
                 data['override_settings'])
         )
-
-
-class GenerateTxt2ImgError(Exception):
-    pass
-
-
-def generate_txt2img(sd_server_url: str, generation_settings: Txt2ImgGenerationSettings) -> Image.Image:
-    return Image.new("RGB", (512, 512), "white")
-    # response = None
-    # try:
-    #     response = requests.post(
-    #         url=f'{sd_server_url}/sdapi/v1/txt2img', json=generation_settings.to_dict(), timeout=None)
-    #     response.raise_for_status()
-
-    #     raw_image = response.json().get("images")[0]
-
-    #     image = Image.open(io.BytesIO(
-    #         base64.b64decode(raw_image.split(",", 1)[0])))
-
-    #     return image
-    # except requests.exceptions.HTTPError as err:
-    #     error_message = "An error occured trying to generate txt2img."
-    #     if response is not None:
-    #         error_message += f" Response Text: {response.text}"
-    #     raise GenerateTxt2ImgError(error_message) from err
-    # except Exception as e:
-    #     raise GenerateTxt2ImgError(e) from e
-
-
-def save_image_locally(image):
-    output_dir = "output"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    image.save(
-        output_dir + f'/output-{datetime.datetime.now().isoformat()}.png')
