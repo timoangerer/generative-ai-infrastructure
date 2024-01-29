@@ -19,19 +19,19 @@ class Txt2ImgGenerationRequest:
     seed: int
     model_name: str
 
-def generate_txt2img_diffusers_rpc(settings: Txt2ImgGenerationRequest):
+def generate_txt2img_diffusers_rpc(settings: Txt2ImgGenerationRequest, iter_duration_callback):
     conn = rpyc.connect("localhost", 18812, config={
     'allow_public_attrs': True, "sync_request_timeout": 240})
     remote_service = conn.root
 
-    img_byte_arr = remote_service.generate_txt2img(settings)
+    img_byte_arr = remote_service.generate_txt2img(settings, iter_duration_callback)
     image = Image.open(io.BytesIO(img_byte_arr))
 
     conn.close()
 
     return image
 
-def generate_txt2img_diffusers(settings: Txt2ImgGenerationSettings) -> Image.Image:
+def generate_txt2img_diffusers(settings: Txt2ImgGenerationSettings, iter_duration_callback) -> Image.Image:
     request = Txt2ImgGenerationRequest(
         prompt=settings.prompt,
         negative_prompt=settings.negative_prompt,
@@ -44,5 +44,5 @@ def generate_txt2img_diffusers(settings: Txt2ImgGenerationSettings) -> Image.Ima
         model_name="v1-5-pruned-emaonly"
     )
 
-    img = generate_txt2img_diffusers_rpc(request)
+    img = generate_txt2img_diffusers_rpc(request, iter_duration_callback)
     return img

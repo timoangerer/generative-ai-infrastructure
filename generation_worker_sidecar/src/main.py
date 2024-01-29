@@ -70,8 +70,13 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
             sd_model_checkpoint=event.generation_settings.override_settings.sd_model_checkpoint  # type: ignore
         )
     )
+
+    def iter_duration_callback(start, end, i):
+        with tracer.start_as_current_span(f"generation_progress_step_{i}", start_time = start) as span:
+            span.set_attribute("step", i)
+
     # type: ignore[end]
-    image = generate_txt2img_diffusers(txt2img_generation_settings)
+    image = generate_txt2img_diffusers(txt2img_generation_settings, iter_duration_callback)
     sidecar_logger.info("Generated image")
 
     # Store the generated image

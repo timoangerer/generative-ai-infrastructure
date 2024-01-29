@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import io
 import logging
 import sys
+import time
 import rpyc
 from rpyc.utils.server import ThreadedServer
 from PIL import Image
@@ -44,7 +45,7 @@ class MyService(rpyc.Service):
         logger.info("Health check")
         return "OK"
 
-    def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest):
+    def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest, iter_duration_callback):
         if settings.sample_mode:
             device = select_device()
             logger.info(f"Sample mode is on, returning white image. Would have used device: {device}. Request: {request}")
@@ -58,9 +59,6 @@ class MyService(rpyc.Service):
         model_path = get_model_path_by_name(
             model_name=request.model_name, models_dir=models_dir)
 
-        def generation_progress_callback(self, step: int, timestep: int, callback_kwargs: dict):
-            print(f"Step: {step}, Timestep: {timestep}")
-            return callback_kwargs
 
         generation_settings = GenerationSettings(
             prompt=request.prompt,
@@ -74,6 +72,17 @@ class MyService(rpyc.Service):
         )
 
         pipeline = create_pipeline(model_path=model_path)
+
+        curr_start = time.time_ns()
+        def generation_progress_callback(self, step: int, timestep: int, callback_kwargs: dict):
+            nonlocal curr_start
+            start = curr_start
+            end = time.time_ns()
+
+            iter_duration_callback(start, end, step)
+
+            curr_start = end
+            return callback_kwargs
 
         img = generate_text2image(
             settings=generation_settings, pipeline=pipeline, callback_on_step_end=generation_progress_callback)
