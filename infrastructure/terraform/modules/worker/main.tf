@@ -125,6 +125,7 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
 
           persistent_volume_claim {
             claim_name = "models-pvc"
+            read_only  = true
           }
         }
       }
