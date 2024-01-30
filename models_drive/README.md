@@ -13,6 +13,7 @@
 ### Push Docker image to Docker Hub:
 
 ```bash
-docker tag models-drive:latest timoangerer/models-drive:latest
+docker build -t models-drive . &&
+docker tag models-drive:latest timoangerer/models-drive:latest &&
 docker push timoangerer/models-drive:latest
 ```

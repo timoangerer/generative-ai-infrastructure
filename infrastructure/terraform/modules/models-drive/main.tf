@@ -10,12 +10,16 @@ resource "kubernetes_job" "download_job" {
         labels = {
           job = "file-download"
         }
+        annotations = {
+          "kubectl.kubernetes.io/restartedAt" = timestamp()
+        }
       }
 
       spec {
         container {
-          name  = "downloader"
-          image = "timoangerer/models-drive:latest"
+          name              = "downloader"
+          image             = "timoangerer/models-drive:latest"
+          image_pull_policy = "Always"
 
           env {
             name  = "URL_FILE_PATH"
