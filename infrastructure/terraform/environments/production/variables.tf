@@ -106,3 +106,18 @@ variable "aws_secret_access_key" {
   type        = string
   sensitive   = true
 }
+
+# MODELS
+variable "model_links" {
+  description = "List of model download links and filenames"
+  type = list(object({
+    url       = string
+    rename_to = string
+  }))
+  default = [
+    {
+      url       = "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors?download=true"
+      rename_to = "v1-5-pruned-emaonly.safetensors"
+    }
+  ]
+}

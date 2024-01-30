@@ -168,8 +168,9 @@ module "api" {
 }
 
 module "download_models" {
-  source    = "../../modules/models-drive"
-  namespace = kubernetes_namespace.genai.metadata[0].name
+  source      = "../../modules/models-drive"
+  namespace   = kubernetes_namespace.genai.metadata[0].name
+  model_links = var.model_links
 }
 
 module "worker" {

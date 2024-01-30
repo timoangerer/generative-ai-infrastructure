@@ -25,4 +25,14 @@ otel_exporter_otlp_endpoint = "http://signoz-otel-collector:4317"
 sd_server_url  = "http://127.0.0.1:7860"
 s3_bucket_name = "sd-generations-2"
 
-# config_context = var.config_context
+# MODELS
+model_links = [
+  {
+    url       = "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors?download=true"
+    rename_to = "v1-5-pruned-emaonly.safetensors"
+  },
+  {
+    url       = "https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_6.31_BakedVae_pruned.safetensors?download=true"
+    rename_to = "DreamShaper_6.safetensors"
+  }
+]
