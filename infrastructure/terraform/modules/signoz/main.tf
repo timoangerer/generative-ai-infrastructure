@@ -3,5 +3,5 @@ resource "helm_release" "signoz" {
   namespace  = var.namespace
   repository = "https://charts.signoz.io"
   chart      = "signoz"
-  version    = "0.30.2 "
+  version    = "0.30.2"
 }
