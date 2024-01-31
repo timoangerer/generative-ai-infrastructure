@@ -146,6 +146,18 @@ module "pulsar_cluster" {
   namespace = kubernetes_namespace.genai.metadata[0].name
 }
 
+module "pulsar_setup" {
+  source     = "../../modules/pulsar-setup"
+  depends_on = [module.pulsar_cluster]
+
+  namespace          = kubernetes_namespace.genai.metadata[0].name
+  pulsar_service_url = var.pulsar_service_url
+  pulsar_cluster     = var.pulsar_cluster
+  pulsar_namespace   = var.namespace
+  pulsar_tenant      = var.pulsar_tenant
+  pulsar_topics      = var.pulsar_topics
+}
+
 module "signoz" {
   source    = "../../modules/signoz"
   namespace = kubernetes_namespace.genai.metadata[0].name
