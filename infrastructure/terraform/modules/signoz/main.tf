@@ -5,5 +5,5 @@ resource "helm_release" "signoz" {
   chart      = "signoz"
   version    = "0.30.2"
 
-  timeout = 600
+  timeout = 1000
 }
