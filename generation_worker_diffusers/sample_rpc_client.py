@@ -5,7 +5,6 @@ import rpyc
 from PIL import Image
 
 
-# Shape of the request has to be the same as in the server
 @dataclass
 class Txt2ImgGenerationRequest:
     prompt: str
@@ -16,7 +15,7 @@ class Txt2ImgGenerationRequest:
     num_inference_steps: int
     sampler_name: str
     seed: int
-    model_name: str
+    model: str
 
 
 def generate_txt2img_diffusers(settings: Txt2ImgGenerationRequest):
@@ -26,8 +25,9 @@ def generate_txt2img_diffusers(settings: Txt2ImgGenerationRequest):
 
     def iter_duration_callback(start, end, step):
         print(f"start: {start}, end {end}, i {step}")
-    
-    img_byte_arr = remote_service.generate_txt2img(settings, iter_duration_callback)
+
+    img_byte_arr = remote_service.generate_txt2img(
+        settings, iter_duration_callback)
     image = Image.open(io.BytesIO(img_byte_arr))
     print(f"The result is: {image.size}")
 
@@ -44,7 +44,7 @@ def main():
         num_inference_steps=5,
         sampler_name="ddim",
         seed=42,
-        model_name="v1-5-pruned-emaonly"
+        model="v1-5-pruned-emaonly"
     )
 
     generate_txt2img_diffusers(request)

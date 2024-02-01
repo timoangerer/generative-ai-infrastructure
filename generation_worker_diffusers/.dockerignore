@@ -1,3 +1,5 @@
-models
-output
-hf_cache
+*
+!src
+!download_hf_models.py
+!pdm.lock
+!pyproject.toml

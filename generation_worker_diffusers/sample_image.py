@@ -1,5 +1,4 @@
 import datetime
-
 from src.settings import get_settings
 from src.stable_diffusion import (GenerationSettings, create_pipeline,
                                   generate_text2image)
@@ -9,7 +8,8 @@ from src.utils import get_model_path_by_name
 def main():
     models_dir = get_settings().models_dir
 
-    model_path = get_model_path_by_name(model_name="v1-5-pruned-emaonly", models_dir=models_dir)
+    model_path = get_model_path_by_name(
+        model_name="v1-5-pruned-emaonly", models_dir=models_dir)
 
     settings = GenerationSettings(
         prompt="A painting of a cat",
@@ -31,9 +31,9 @@ def main():
     img = generate_text2image(
         settings=settings, pipeline=pipeline, callback_on_step_end=generation_progress_callback)
 
-    # current_time = datetime.datetime.now().isoformat()
-    # file_name = f"{current_time}.png"
-    # img.save(file_name)
+    current_time = datetime.datetime.now().isoformat()
+    file_name = f"{current_time}.png"
+    img.save(file_name)
 
 
 if __name__ == "__main__":
