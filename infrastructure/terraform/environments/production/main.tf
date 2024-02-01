@@ -184,10 +184,10 @@ module "pulsar_setup" {
   pulsar_topics      = var.pulsar_topics
 }
 
-# module "signoz" {
-#   source    = "../../modules/signoz"
-#   namespace = kubernetes_namespace.genai.metadata[0].name
-# }
+module "signoz" {
+  source    = "../../modules/signoz"
+  namespace = kubernetes_namespace.genai.metadata[0].name
+}
 
 module "api" {
   source     = "../../modules/api"
