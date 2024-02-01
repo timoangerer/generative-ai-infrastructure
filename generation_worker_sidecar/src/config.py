@@ -20,5 +20,5 @@ class Config(BaseSettings):
 
 
 @lru_cache
-def get_config(env_file: str = "dev.env"):
-    return Config(_env_file=env_file)  # type: ignore
+def get_config():
+    return Config()  # type: ignore

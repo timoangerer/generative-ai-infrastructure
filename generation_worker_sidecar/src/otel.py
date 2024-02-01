@@ -16,7 +16,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from config import get_config
 
-config = get_config("dev.env")
+config = get_config()
 
 resource = Resource.create(
     {
