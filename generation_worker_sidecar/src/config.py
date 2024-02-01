@@ -18,9 +18,6 @@ class Config(BaseSettings):
     otel_service_name: str = Field(...)
     otel_exporter_otlp_endpoint: str = Field(...)
 
-    aws_access_key_id: str = Field(...)
-    aws_secret_access_key: str = Field(...)
-
 
 @lru_cache
 def get_config(env_file: str = "dev.env"):

@@ -27,10 +27,10 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
           image_pull_policy = "IfNotPresent"
           command = ["./bin/pulsar", "sql-worker", "run",
             "-Dconnector.name=pulsar",
-            "-Dpulsar.broker-service-url=http://pulsar-mini-proxy:8080",
-            "-Dpulsar.web-service-url=http://pulsar-mini-proxy:8080",
-            "-Dpulsar.broker-binary-service-url=pulsar://pulsar-mini-proxy:6650",
-            "-Dpulsar.metadata-url=zk:pulsar-mini-zookeeper:2181",
+            "-Dpulsar.broker-service-url=${var.pulsar_service_url}",
+            "-Dpulsar.web-service-url=${var.pulsar_service_url}",
+            "-Dpulsar.broker-binary-service-url=${var.pulsar_broker_service_url}",
+            "-Dpulsar.metadata-url=zk:${var.pulsar_cluster}-zookeeper:2181",
             "-Dpulsar.bookkeeper-explicit-interval=1",  # Enables to get latest message
             "-Dpulsar.bookkeeper-use-v2-protocol=false" # Enables to get latest message
           ]

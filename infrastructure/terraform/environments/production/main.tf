@@ -51,7 +51,17 @@ provider "kubernetes" {
 
 resource "kubernetes_namespace" "genai" {
   metadata {
-    name = var.namespace
+    name = var.kubernetes_namespace
+  }
+}
+
+resource "kubernetes_service_account" "s3_interaction_sa" {
+  metadata {
+    name      = "s3-interaction"
+    namespace = kubernetes_namespace.genai.metadata[0].name
+    annotations = {
+      "eks.amazonaws.com/role-arn" = data.terraform_remote_state.eks.outputs.iam_s3_interaction_role_arn
+    }
   }
 }
 
@@ -122,7 +132,7 @@ provider "helm" {
 
 resource "helm_release" "metrics_server" {
   name       = "metrics-server"
-  namespace  = kubernetes_namespace.genai.metadata[0].name
+  namespace  = "kube-system"
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
   version    = "3.11.0"
@@ -143,17 +153,19 @@ module "pulsar_cluster" {
     helm = helm
   }
 
-  namespace = kubernetes_namespace.genai.metadata[0].name
+  namespace           = kubernetes_namespace.genai.metadata[0].name
+  pulsar_cluster      = var.pulsar_cluster
+  pulsar_service_port = var.pulsar_service_port
 }
 
 module "pulsar_setup" {
   source     = "../../modules/pulsar-setup"
   depends_on = [module.pulsar_cluster]
 
-  namespace          = kubernetes_namespace.genai.metadata[0].name
-  pulsar_service_url = var.pulsar_service_url
-  pulsar_cluster     = var.pulsar_cluster
-  pulsar_namespace   = var.namespace
+  namespace = kubernetes_namespace.genai.metadata[0].name
+
+  pulsar_service_url = local.pulsar_service_url
+  pulsar_namespace   = var.pulsar_namespace
   pulsar_tenant      = var.pulsar_tenant
   pulsar_topics      = var.pulsar_topics
 }
@@ -164,19 +176,23 @@ module "signoz" {
 }
 
 module "api" {
-  source                      = "../../modules/api"
+  source     = "../../modules/api"
+  depends_on = [module.pulsar_setup]
+
   namespace                   = kubernetes_namespace.genai.metadata[0].name
   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
-  pulsar_service_url          = var.pulsar_service_url
-  pulsar_broker_service_url   = var.pulsar_broker_service_url
-  pulsar_cluster              = var.pulsar_cluster
-  pulsar_tenant               = var.pulsar_tenant
-  pulsar_namespace            = var.pulsar_namespace
-  trino_host                  = var.trino_host
-  trino_port                  = var.trino_port
-  trino_user                  = var.trino_user
-  trino_catalog               = var.trino_catalog
-  trino_schema                = var.trino_schema
+
+  pulsar_service_url        = local.pulsar_service_url
+  pulsar_broker_service_url = var.pulsar_broker_service_url
+  pulsar_cluster            = var.pulsar_cluster
+  pulsar_tenant             = var.pulsar_tenant
+  pulsar_namespace          = var.pulsar_namespace
+
+  trino_host    = var.trino_host
+  trino_port    = var.trino_port
+  trino_user    = var.trino_user
+  trino_catalog = var.trino_catalog
+  trino_schema  = var.trino_schema
 }
 
 module "download_models" {
@@ -186,21 +202,29 @@ module "download_models" {
 }
 
 module "worker" {
-  source                      = "../../modules/worker"
-  namespace                   = kubernetes_namespace.genai.metadata[0].name
+  source     = "../../modules/worker"
+  depends_on = [module.pulsar_setup]
+
+  namespace            = kubernetes_namespace.genai.metadata[0].name
+  service_account_name = kubernetes_service_account.s3_interaction_sa.metadata[0].name
+
   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
-  pulsar_service_url          = var.pulsar_service_url
+  pulsar_service_url          = local.pulsar_service_url
   pulsar_broker_service_url   = var.pulsar_broker_service_url
   pulsar_cluster              = var.pulsar_cluster
   pulsar_tenant               = var.pulsar_tenant
   pulsar_namespace            = var.pulsar_namespace
-  sd_server_url               = var.sd_server_url
+  sd_server_url               = local.sd_server_url
   s3_bucket_name              = var.s3_bucket_name
-  aws_access_key_id           = var.aws_access_key_id
-  aws_secret_access_key       = var.aws_secret_access_key
 }
 
 module "trino" {
-  source    = "../../modules/trino"
+  source     = "../../modules/trino"
+  depends_on = [module.pulsar_setup]
+
   namespace = kubernetes_namespace.genai.metadata[0].name
+
+  pulsar_cluster            = var.pulsar_cluster
+  pulsar_service_url        = local.pulsar_service_url
+  pulsar_broker_service_url = var.pulsar_broker_service_url
 }

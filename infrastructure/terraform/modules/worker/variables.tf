@@ -44,14 +44,7 @@ variable "s3_bucket_name" {
   type        = string
 }
 
-variable "aws_access_key_id" {
-  description = "AWS access key ID"
+variable "service_account_name" {
+  description = "Name of the service account to perform actions such as storing generated images"
   type        = string
-  sensitive   = true
-}
-
-variable "aws_secret_access_key" {
-  description = "AWS secret access key"
-  type        = string
-  sensitive   = true
 }

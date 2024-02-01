@@ -8,11 +8,6 @@ variable "pulsar_service_url" {
   type        = string
 }
 
-variable "pulsar_cluster" {
-  description = "Name of the pulsar cluster"
-  type        = string
-}
-
 variable "pulsar_namespace" {
   description = "Name of the pulsar namespace"
   type        = string

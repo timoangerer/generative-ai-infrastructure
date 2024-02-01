@@ -12,8 +12,6 @@ resource "kubernetes_config_map" "genai-worker-sidecar-config" {
     pulsar_namespace            = var.pulsar_namespace
     sd_server_url               = var.sd_server_url
     s3_bucket_name              = var.s3_bucket_name
-    AWS_ACCESS_KEY_ID           = var.aws_access_key_id
-    AWS_SECRET_ACCESS_KEY       = var.aws_secret_access_key
     otel_service_name           = "sidecar"
     otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
   }
@@ -60,6 +58,8 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
         node_selector = {
           "workload-type" = "gpu"
         }
+
+        service_account_name = "s3-interaction"
 
         container {
           name              = "genai-worker-sidecar"

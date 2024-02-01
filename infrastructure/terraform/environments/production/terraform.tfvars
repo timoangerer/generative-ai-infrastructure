@@ -1,15 +1,14 @@
-# Kubernetes
-config_context        = "arn:aws:eks:eu-central-1:838016166894:cluster/genai-eks-uVtLSP2l"
-namespace             = "genai"
-kubernetes_cluster_ip = "192.168.49.2"
+# KUBERNETES
+kubernetes_namespace = "genai"
 
-# Pulsar
-pulsar_cluster            = "pulsar-mini"
+# PULSAR
+pulsar_cluster            = "pulsar"
 pulsar_namespace          = "genai"
 pulsar_tenant             = "rocky"
 pulsar_topics             = ["requested_txt2img_generation", "dlq_requested_txt2img_generation", "completed_txt2img_generation"]
-pulsar_service_url        = "http://pulsar-mini-proxy:80"
-pulsar_broker_service_url = "pulsar://pulsar-mini-proxy:6650/"
+pulsar_service_host       = "http://pulsar-proxy"
+pulsar_service_port       = "8080"
+pulsar_broker_service_url = "pulsar://pulsar-proxy:6650/"
 
 # TRINO
 trino_host    = "http://genai-trino-service"
@@ -22,8 +21,9 @@ trino_schema  = "rocky/genai"
 otel_exporter_otlp_endpoint = "http://signoz-otel-collector:4317"
 
 # WORKER
-sd_server_url  = "http://127.0.0.1:7860"
-s3_bucket_name = "sd-generations-2"
+sd_server_host = "http://127.0.0.1"
+sd_server_port = "18812"
+s3_bucket_name = "genai-generated-images-1"
 
 # MODELS
 model_links = [

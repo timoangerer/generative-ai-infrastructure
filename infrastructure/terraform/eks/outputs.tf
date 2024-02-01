@@ -1,6 +1,3 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane"
   value       = module.eks.cluster_endpoint
@@ -24,4 +21,9 @@ output "cluster_name" {
 output "models_efs_id" {
   description = "ID of the models EFS"
   value       = aws_efs_file_system.models_efs.id
+}
+
+output "s3_bucket_name" {
+  description = "S3 bucket name for generated images"
+  value       = aws_s3_bucket.generated_images_bucket.bucket
 }

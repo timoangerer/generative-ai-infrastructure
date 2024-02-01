@@ -1,16 +1,7 @@
-# Kubernetes
-variable "config_context" {
-  description = "The Kubernetes context to deploy into"
-  type        = string
-}
+# KUBERNETES
 
-variable "namespace" {
+variable "kubernetes_namespace" {
   description = "The Kubernetes namespace to deploy into"
-  type        = string
-}
-
-variable "kubernetes_cluster_ip" {
-  description = "IP of the Kubernetes cluster"
   type        = string
 }
 
@@ -36,15 +27,23 @@ variable "pulsar_topics" {
   type        = list(string)
 }
 
-variable "pulsar_service_url" {
-  description = "The HTTP service URL for Pulsar"
+variable "pulsar_service_host" {
+  description = "The HTTP service host URL for Pulsar"
   type        = string
+}
+
+variable "pulsar_service_port" {
+  description = "The HTTP service URL port for Pulsar"
+  type        = string
+}
+
+locals {
+  pulsar_service_url = join(":", [var.pulsar_service_host, var.pulsar_service_port])
 }
 
 variable "pulsar_broker_service_url" {
   description = "The broker service URL for Pulsar"
   type        = string
-  default     = "pulsar://localhost:6650/"
 }
 
 # TRINO
@@ -85,26 +84,23 @@ variable "otel_exporter_otlp_endpoint" {
 
 # WORKER
 
-variable "sd_server_url" {
+variable "sd_server_host" {
   description = "URL for the SD server"
   type        = string
+}
+
+variable "sd_server_port" {
+  description = "Port for the SD server"
+  type        = string
+}
+
+locals {
+  sd_server_url = join(":", [var.sd_server_host, var.sd_server_port])
 }
 
 variable "s3_bucket_name" {
   description = "Name of the S3 bucket"
   type        = string
-}
-
-variable "aws_access_key_id" {
-  description = "AWS access key ID"
-  type        = string
-  sensitive   = true
-}
-
-variable "aws_secret_access_key" {
-  description = "AWS secret access key"
-  type        = string
-  sensitive   = true
 }
 
 # MODELS

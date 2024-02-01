@@ -223,3 +223,72 @@ resource "aws_eks_addon" "ebs-csi" {
     "terraform" = "true"
   }
 }
+
+resource "aws_s3_bucket" "generated_images_bucket" {
+  bucket = var.s3_bucket_name
+  tags   = {}
+}
+
+resource "aws_iam_policy" "s3_access" {
+  name        = "${var.name}-s3-access"
+  description = "Policy to access specific S3 bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ],
+        Effect = "Allow",
+        Resource = [
+          "${aws_s3_bucket.generated_images_bucket.arn}",
+          "${aws_s3_bucket.generated_images_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_name
+}
+
+output "eks_cluster_oidc_issuer_url" {
+  value = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+}
+
+data "aws_caller_identity" "current" {}
+
+locals {
+  oidc_url       = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+  oidc_host_path = replace(local.oidc_url, "https://", "")
+  oidc_arn       = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_host_path}"
+}
+
+output "eks_cluster_oidc_provider_arn" {
+  value = local.oidc_arn
+}
+
+module "iam_eks_role" {
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  role_name = "image-saver-s3"
+
+  role_policy_arns = {
+    policy = aws_iam_policy.s3_access.arn
+  }
+
+  oidc_providers = {
+    one = {
+      provider_arn               = local.oidc_arn
+      namespace_service_accounts = ["genai:s3-interaction"]
+    }
+  }
+}
+
+output "iam_s3_interaction_role_arn" {
+  value = module.iam_eks_role.iam_role_arn
+}
