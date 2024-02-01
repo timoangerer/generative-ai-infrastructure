@@ -225,8 +225,9 @@ resource "aws_eks_addon" "ebs-csi" {
 }
 
 resource "aws_s3_bucket" "generated_images_bucket" {
-  bucket = var.s3_bucket_name
-  tags   = {}
+  bucket        = var.s3_bucket_name
+  force_destroy = true
+  tags          = {}
 }
 
 resource "aws_iam_policy" "s3_access" {
