@@ -100,11 +100,6 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
           }
 
           env {
-            name  = "SAMPLE_MODE"
-            value = "false"
-          }
-
-          env {
             name  = "MODELS_DIR"
             value = "/models"
           }

@@ -45,16 +45,7 @@ class MyService(rpyc.Service):
         logger.info("Health check")
         return "OK"
 
-    def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest, iter_duration_callback):
-        if settings.sample_mode:
-            device = select_device()
-            logger.info(f"Sample mode is on, returning white image. Would have used device: {device}. Request: {request}")
-
-            img = Image.new("RGB", (512, 512), "white")
-            
-            img_byte_arr = img_to_byte_array(img)
-            return img_byte_arr
-        
+    def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest, iter_duration_callback):      
         models_dir = settings.models_dir
         model_path = get_model_path_by_name(
             model_name=request.model, models_dir=models_dir)

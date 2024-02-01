@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     models_dir: pathlib.Path
-    sample_mode: bool = False
 
     class Config:
         env_prefix = ''
