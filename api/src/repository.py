@@ -6,8 +6,7 @@ from uuid import UUID
 from opentelemetry import trace
 from trino.dbapi import connect
 
-from models import (Txt2ImgGenerationOverrideSettings,
-                    Txt2ImgGenerationSettings, Txt2ImgImgDTO)
+from models import (Txt2ImgGenerationSettings, Txt2ImgImgDTO)
 
 tracer = trace.get_tracer(__name__)
 
@@ -52,12 +51,11 @@ class TrinoRepository(Repository):
         )
 
     def map_row_to_image(self, row):
-        id, metadata, gs, request_time, complete_time, s3_bucket, s3_object_key = row
+        id, metadata, gs, request_time, complete_time, image_url = row
 
         generation_settings = Txt2ImgGenerationSettings(
             prompt=gs.prompt,
             negative_prompt=gs.negative_prompt,
-            styles=gs.styles,
             seed=gs.seed,
             sampler_name=gs.sampler_name,
             batch_size=gs.batch_size,
@@ -66,15 +64,8 @@ class TrinoRepository(Repository):
             cfg_scale=gs.cfg_scale,
             width=gs.width,
             height=gs.height,
-            override_settings=Txt2ImgGenerationOverrideSettings(
-                sd_model_checkpoint=gs.override_settings[0]
-            )
+            model=gs.model
         )
-
-        if s3_bucket is None or s3_object_key is None:
-            image_url = None
-        else:
-            image_url = f"https://{s3_bucket}.s3.amazonaws.com/{s3_object_key}"
 
         return Txt2ImgImgDTO(
             id=id,
@@ -99,8 +90,7 @@ class TrinoRepository(Repository):
                         req.generation_settings,
                         req.__publish_time__ as request_time,
                         comp.__publish_time__ as complete_time,
-                        comp.s3_bucket,
-                        comp.s3_object_key
+                        comp.image_url
                     from
                         requested_txt2img_generation as req
                     left join completed_txt2img_generation as comp on
@@ -136,8 +126,7 @@ class TrinoRepository(Repository):
                     req.generation_settings,
                     req.__publish_time__ as request_time,
                     comp.__publish_time__ as complete_time,
-                    comp.s3_bucket,
-                    comp.s3_object_key
+                    comp.image_url
                 from
                     requested_txt2img_generation as req
                 left join completed_txt2img_generation as comp on

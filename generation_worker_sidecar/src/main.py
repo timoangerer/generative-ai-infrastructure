@@ -1,4 +1,6 @@
-from stable_diffusion.diffusers import generate_txt2img_diffusers
+from stable_diffusion_generators.diffusers import DiffusersStableDiffusionGenerator
+from typing import Callable, Any
+from PIL import Image
 from opentelemetry import trace, context
 import atexit
 import logging
@@ -8,7 +10,7 @@ from config import Config, get_config
 from pulsar.schema import AvroSchema
 from otel import setup_otel
 from pulsar_schemas import CompletedTxt2ImgGenerationEvent, RequestedTxt2ImgGenerationEvent
-from sd_generation import Txt2ImgGenerationOverrideSettings, Txt2ImgGenerationSettings
+from models import Txt2ImgGenerationSettings
 from topics import Topics
 from utils import upload_image_to_s3
 from opentelemetry.trace.propagation.tracecontext import \
@@ -47,16 +49,18 @@ completed_txt2img_generation_producer = pulsar_client.create_producer(
     schema=AvroSchema(CompletedTxt2ImgGenerationEvent))  # type: ignore
 
 
+GenerateTxt2ImgFuncType = Callable[[
+    Txt2ImgGenerationSettings, Any], Image.Image]
+
+
 @tracer.start_as_current_span("sidecar.requested_txt2img_generation_event process")
-def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent):
+def process_requested_txt2img_generation_event(config: Config, event: RequestedTxt2ImgGenerationEvent, generate_txt2img: GenerateTxt2ImgFuncType):
     sidecar_logger.info("Process event: %s, '%s'", event.id,
                         event.generation_settings.prompt)
 
-    # type: ignore[start]
     txt2img_generation_settings = Txt2ImgGenerationSettings(
         prompt=event.generation_settings.prompt,  # type: ignore
         negative_prompt=event.generation_settings.negative_prompt,  # type: ignore
-        styles=event.generation_settings.styles,  # type: ignore
         seed=event.generation_settings.seed,  # type: ignore
         sampler_name=event.generation_settings.sampler_name,  # type: ignore
         batch_size=event.generation_settings.batch_size,  # type: ignore
@@ -65,17 +69,15 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
         cfg_scale=event.generation_settings.cfg_scale,  # type: ignore
         width=event.generation_settings.width,  # type: ignore
         height=event.generation_settings.height,  # type: ignore
-        override_settings=Txt2ImgGenerationOverrideSettings(
-            sd_model_checkpoint=event.generation_settings.override_settings.sd_model_checkpoint  # type: ignore
-        )
+        model=event.generation_settings.model  # type: ignore
     )
 
     def iter_duration_callback(start, end, i):
-        with tracer.start_as_current_span(f"generation_progress_step_{i}", start_time = start) as span:
+        with tracer.start_as_current_span(f"generation_progress_step_{i}", start_time=start) as span:
             span.set_attribute("step", i)
 
-    # type: ignore[end]
-    image = generate_txt2img_diffusers(txt2img_generation_settings, iter_duration_callback)
+    image = generate_txt2img(
+        txt2img_generation_settings, iter_duration_callback)
     sidecar_logger.info("Generated image")
 
     # Store the generated image
@@ -86,8 +88,7 @@ def process_requested_txt2img_generation_event(config: Config, event: RequestedT
     # Produce event for generated image
     completed_txt2img_generation_event = CompletedTxt2ImgGenerationEvent(
         id=event.id,
-        s3_bucket=config.s3_bucket_name,
-        s3_object_key=f"{event.id}.jpg"
+        image_url=f"{config.s3_bucket_name}.s3.eu-central-1.amazonaws.com/{event.id}.jpg"
     )
     completed_txt2img_generation_producer.send(
         completed_txt2img_generation_event)
@@ -108,10 +109,12 @@ def main():
         context.attach(ctx)
 
         try:
-            process_requested_txt2img_generation_event(config=config, event=event_value)  
-            requested_txt2img_generation_consumer.acknowledge(event)
-            sidecar_logger.info(
-                f"Acknowledged message '{event_value.id}'")
+            with DiffusersStableDiffusionGenerator() as generator:
+                process_requested_txt2img_generation_event(
+                    config=config, event=event_value, generate_txt2img=generator.generate_txt2img)
+                requested_txt2img_generation_consumer.acknowledge(event)
+                sidecar_logger.info(
+                    f"Acknowledged message '{event_value.id}'")
         except Exception as e:
             sidecar_logger.error(
                 f"Error while processing message '{event_value.id}': {str(e)}")
@@ -120,7 +123,6 @@ def main():
             sidecar_logger.error(
                 f"Negative acknowledged message '{event_value.id}'")
 
-        
 
 if __name__ == '__main__':
     main()

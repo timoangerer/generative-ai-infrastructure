@@ -30,7 +30,7 @@ class Txt2ImgGenerationRequest:
     num_inference_steps: int
     sampler_name: str
     seed: int
-    model_name: str
+    model: str
 
 
 def img_to_byte_array(img: Image.Image):
@@ -57,9 +57,9 @@ class MyService(rpyc.Service):
         
         models_dir = settings.models_dir
         model_path = get_model_path_by_name(
-            model_name=request.model_name, models_dir=models_dir)
+            model_name=request.model, models_dir=models_dir)
         if model_path is None:
-            raise Exception(f'Model "{request.model_name}" not found')
+            raise Exception(f'Model "{request.model}" not found')
 
         generation_settings = GenerationSettings(
             prompt=request.prompt,

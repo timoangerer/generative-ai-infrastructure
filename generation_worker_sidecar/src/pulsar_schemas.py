@@ -1,14 +1,9 @@
-from pulsar.schema import Array, Float, Integer, Record, String, Map
-
-
-class Txt2ImgGenerationOverrideSettings(Record):
-    sd_model_checkpoint = String()
+from pulsar.schema import Float, Integer, Record, String, Map
 
 
 class Txt2ImgGenerationSettings(Record):
     prompt = String()
     negative_prompt = String()
-    styles = Array(String())
     seed = Integer()
     sampler_name = String()
     batch_size = Integer()
@@ -17,7 +12,7 @@ class Txt2ImgGenerationSettings(Record):
     cfg_scale = Float()
     width = Integer()
     height = Integer()
-    override_settings = Txt2ImgGenerationOverrideSettings()
+    model = String()
 
 
 class RequestedTxt2ImgGenerationEvent(Record):
@@ -29,5 +24,4 @@ class RequestedTxt2ImgGenerationEvent(Record):
 class CompletedTxt2ImgGenerationEvent(Record):
     id = String()
     metadata = Map(String())
-    s3_bucket = String()
-    s3_object_key = String()
+    image_url = String()
