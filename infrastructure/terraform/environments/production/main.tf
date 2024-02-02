@@ -138,20 +138,6 @@ resource "helm_release" "metrics_server" {
   version    = "3.11.0"
 }
 
-resource "kubernetes_namespace" "prometheus_ns" {
-  metadata {
-    name = "prometheus"
-  }
-}
-
-resource "helm_release" "prometheus" {
-  name       = "prometheus"
-  namespace  = kubernetes_namespace.prometheus_ns.metadata[0].name
-  repository = "https://prometheus-community.github.io/helm-charts"
-  chart      = "prometheus"
-  version    = "25.11.0"
-}
-
 resource "helm_release" "nvidia_k8s_device_plugin" {
   name       = "nvidia-k8s-device-plugin"
   namespace  = kubernetes_namespace.genai.metadata[0].name

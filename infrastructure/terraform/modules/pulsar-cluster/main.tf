@@ -7,6 +7,8 @@ resource "helm_release" "pulsar" {
 
   values = [file("${path.module}/values-simple.yaml")]
 
+  timeout = 800
+
   set {
     name  = "initialize"
     value = "true"
@@ -19,11 +21,11 @@ resource "helm_release" "pulsar" {
 
   set {
     name  = "proxy.service.type"
-    value = "NodePort"
+    value = "ClusterIP"
   }
 
   set {
     name  = "pulsar_manager.service.type"
-    value = "NodePort"
+    value = "ClusterIP"
   }
 }
