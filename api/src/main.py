@@ -2,13 +2,13 @@ import logging
 from typing import List
 from uuid import UUID, uuid4
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, status
 from fastapi.responses import JSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from business_logic import get_all_images, get_image_by_id
 from config import get_config
-from models import (Txt2ImgGenerationRequest, Txt2ImgGenerationRequestDTO,
+from models import (Txt2ImgGenerationRequest, Txt2ImgGenerationRequestDTO, Txt2ImgGenerationResponseDTO,
                     Txt2ImgImgDTO)
 from otel import setup_otel
 from pulsar_utils import close_pulsar_resources, send_generation_request
@@ -64,7 +64,7 @@ async def get_image_by_id_route(image_id: UUID) -> Txt2ImgImgDTO:
     return image
 
 
-@app.post("/images/", response_model=UUID, name="generate_image_route")
+@app.post("/images/", response_model=Txt2ImgGenerationResponseDTO, name="generate_image_route", status_code=status.HTTP_202_ACCEPTED)
 async def generate_image_route(req: Txt2ImgGenerationRequestDTO) -> UUID:
     request_id = uuid4()
     generation_request = Txt2ImgGenerationRequest(
@@ -74,6 +74,10 @@ async def generate_image_route(req: Txt2ImgGenerationRequestDTO) -> UUID:
     )
 
     send_generation_request(generation_request)
-    return request_id
+    response = Txt2ImgGenerationResponseDTO(
+        message="Request is being processed",
+        id=request_id
+    )
+    return response
 
 FastAPIInstrumentor.instrument_app(app)

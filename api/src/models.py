@@ -30,6 +30,9 @@ class Txt2ImgGenerationRequestDTO(BaseModel):
     metadata: dict[str, str]
     generation_settings: Txt2ImgGenerationSettings
 
+class Txt2ImgGenerationResponseDTO(BaseModel):
+    message: str
+    id: UUID
 
 class Txt2ImgImgDTO(BaseModel):
     id: UUID
