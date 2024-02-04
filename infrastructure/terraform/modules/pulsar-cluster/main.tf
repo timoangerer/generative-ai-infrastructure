@@ -5,7 +5,7 @@ resource "helm_release" "pulsar" {
   chart      = "pulsar"
   version    = "3.0.0"
 
-  values = [file("${path.module}/values-simple.yaml")]
+  values = [file(var.pulsar_cluster_config_file)]
 
   timeout = 800
 
@@ -21,11 +21,6 @@ resource "helm_release" "pulsar" {
 
   set {
     name  = "proxy.service.type"
-    value = "ClusterIP"
-  }
-
-  set {
-    name  = "pulsar_manager.service.type"
     value = "ClusterIP"
   }
 }

@@ -42,7 +42,7 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
             }
 
             requests = {
-              cpu    = "2000m"
+              cpu    = "500m"
               memory = "4Gi"
             }
           }

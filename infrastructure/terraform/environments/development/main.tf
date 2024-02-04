@@ -1,10 +1,5 @@
 terraform {
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 4.48.0"
-    }
-
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "2.23.0"
@@ -17,35 +12,15 @@ terraform {
   }
 }
 
-data "terraform_remote_state" "eks" {
-  backend = "local"
-
-  config = {
-    path = "../../eks/terraform.tfstate"
-  }
-}
-
-# Retrieve EKS cluster information
-provider "aws" {
-  region = data.terraform_remote_state.eks.outputs.region
-}
-
-data "aws_eks_cluster" "cluster" {
-  name = data.terraform_remote_state.eks.outputs.cluster_name
-}
-
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      data.aws_eks_cluster.cluster.name
-    ]
+  config_path    = "~/.kube/config"
+  config_context = "minikube"
+}
+
+provider "helm" {
+  kubernetes {
+    config_path    = "~/.kube/config"
+    config_context = "minikube"
   }
 }
 
@@ -53,89 +28,6 @@ resource "kubernetes_namespace" "genai" {
   metadata {
     name = var.kubernetes_namespace
   }
-}
-
-resource "kubernetes_service_account" "s3_interaction_sa" {
-  metadata {
-    name      = "s3-interaction"
-    namespace = kubernetes_namespace.genai.metadata[0].name
-    annotations = {
-      "eks.amazonaws.com/role-arn" = data.terraform_remote_state.eks.outputs.iam_s3_interaction_role_arn
-    }
-  }
-}
-
-resource "kubernetes_storage_class" "efs" {
-  metadata {
-    name = "efs-sc"
-
-  }
-  storage_provisioner = "efs.csi.aws.com"
-  parameters = {
-    provisioningMode = "efs-ap"
-    fileSystemId     = data.terraform_remote_state.eks.outputs.models_efs_id
-    directoryPerms   = "777"
-  }
-}
-resource "kubernetes_persistent_volume" "models_pv" {
-  metadata {
-    name = "models-pv"
-  }
-  spec {
-    capacity = {
-      storage = "20Gi"
-    }
-    access_modes       = ["ReadWriteMany"]
-    storage_class_name = kubernetes_storage_class.efs.metadata[0].name
-    persistent_volume_source {
-      csi {
-        driver        = "efs.csi.aws.com"
-        volume_handle = data.terraform_remote_state.eks.outputs.models_efs_id
-      }
-    }
-  }
-}
-
-resource "kubernetes_persistent_volume_claim" "models_pvc" {
-  metadata {
-    name      = "models-pvc"
-    namespace = kubernetes_namespace.genai.metadata[0].name
-  }
-  spec {
-    access_modes       = ["ReadWriteMany"]
-    storage_class_name = kubernetes_storage_class.efs.metadata[0].name
-    resources {
-      requests = {
-        storage = "10Gi"
-      }
-    }
-    volume_name = kubernetes_persistent_volume.models_pv.id
-  }
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args = [
-        "eks",
-        "get-token",
-        "--cluster-name",
-        data.aws_eks_cluster.cluster.name
-      ]
-    }
-  }
-}
-
-resource "helm_release" "nvidia_k8s_device_plugin" {
-  name       = "nvidia-k8s-device-plugin"
-  namespace  = kubernetes_namespace.genai.metadata[0].name
-  repository = "https://nvidia.github.io/k8s-device-plugin"
-  chart      = "nvidia-device-plugin "
-  version    = "0.14.3"
 }
 
 module "pulsar_cluster" {
@@ -184,30 +76,6 @@ module "api" {
   trino_schema  = var.trino_schema
 }
 
-module "download_models" {
-  source      = "../../modules/models-drive"
-  namespace   = kubernetes_namespace.genai.metadata[0].name
-  model_links = var.model_links
-}
-
-# module "worker" {
-#   source     = "../../modules/worker"
-#   depends_on = [module.pulsar_setup]
-
-#   namespace            = kubernetes_namespace.genai.metadata[0].name
-#   service_account_name = kubernetes_service_account.s3_interaction_sa.metadata[0].name
-#   models_pvc           = kubernetes_persistent_volume_claim.models_pvc.metadata[0].name
-
-#   otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
-#   pulsar_service_url          = local.pulsar_service_url
-#   pulsar_broker_service_url   = var.pulsar_broker_service_url
-#   pulsar_cluster              = var.pulsar_cluster
-#   pulsar_tenant               = var.pulsar_tenant
-#   pulsar_namespace            = var.pulsar_namespace
-#   sd_server_url               = local.sd_server_url
-#   s3_bucket_name              = var.s3_bucket_name
-# }
-
 module "trino" {
   source     = "../../modules/trino"
   depends_on = [module.pulsar_setup]
@@ -217,6 +85,32 @@ module "trino" {
   pulsar_cluster            = var.pulsar_cluster
   pulsar_service_url        = local.pulsar_service_url
   pulsar_broker_service_url = var.pulsar_broker_service_url
+}
+
+# WORKER DEPLOYMENT
+
+resource "kubernetes_persistent_volume_claim" "models_pvc" {
+  metadata {
+    name      = "models-pvc"
+    namespace = kubernetes_namespace.genai.metadata[0].name
+  }
+  spec {
+    access_modes       = ["ReadWriteMany"]
+    storage_class_name = "standard"
+    resources {
+      requests = {
+        storage = "10Gi"
+      }
+    }
+  }
+}
+
+module "download_models" {
+  source      = "../../modules/models-drive"
+  namespace   = kubernetes_namespace.genai.metadata[0].name
+  model_links = var.model_links
+
+  depends_on = [kubernetes_persistent_volume_claim.models_pvc]
 }
 
 resource "kubernetes_config_map" "genai-worker-sidecar-config" {
@@ -249,6 +143,16 @@ resource "kubernetes_config_map" "genai-worker-diffusers-config" {
   }
 }
 
+variable "aws_access_key_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_secret_access_key" {
+  type      = string
+  sensitive = true
+}
+
 resource "kubernetes_deployment" "genai_worker_deployment" {
   metadata {
     name      = "genai-worker-deployment"
@@ -276,12 +180,6 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
       }
 
       spec {
-        node_selector = {
-          "workload-type" = "gpu"
-        }
-
-        service_account_name = kubernetes_service_account.s3_interaction_sa.metadata[0].name
-
         container {
           name              = "genai-worker-sidecar"
           image             = "timoangerer/genai-worker-sidecar:latest"
@@ -289,12 +187,12 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
 
           resources {
             limits = {
-              cpu    = "1000m"
+              cpu    = "500m"
               memory = "1Gi"
             }
 
             requests = {
-              cpu    = "500m"
+              cpu    = "200m"
               memory = "0.5Gi"
             }
           }
@@ -303,6 +201,16 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
             config_map_ref {
               name = "genai-worker-sidecar-config"
             }
+          }
+
+          env {
+            name  = "AWS_ACCESS_KEY_ID"
+            value = var.aws_access_key_id
+          }
+
+          env {
+            name  = "AWS_SECRET_ACCESS_KEY"
+            value = var.aws_secret_access_key
           }
         }
         container {
@@ -340,7 +248,7 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
           name = "storage"
 
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.models_pvc.metadata[0].name
+            claim_name = "models-pvc"
             read_only  = true
           }
         }

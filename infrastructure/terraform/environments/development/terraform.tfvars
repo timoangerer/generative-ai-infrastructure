@@ -9,7 +9,7 @@ pulsar_topics              = ["requested_txt2img_generation", "dlq_requested_txt
 pulsar_service_host        = "http://pulsar-proxy"
 pulsar_service_port        = "8080"
 pulsar_broker_service_url  = "pulsar://pulsar-proxy:6650/"
-pulsar_cluster_config_file = "pulsar-values-production.yaml"
+pulsar_cluster_config_file = "pulsar-values-minikube.yaml"
 
 # TRINO
 trino_host    = "http://genai-trino-service"

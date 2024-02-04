@@ -56,7 +56,7 @@ resource "kubernetes_deployment" "genai_api_deployment" {
             }
 
             requests = {
-              cpu    = "1000m"
+              cpu    = "500m"
               memory = "1Gi"
             }
           }
