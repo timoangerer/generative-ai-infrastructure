@@ -40,12 +40,16 @@ def img_to_byte_array(img: Image.Image):
 
     return img_byte_arr
 
+
 class MyService(rpyc.Service):
+    _pipeline_cache = None
+    _cached_model_path = None
+
     def exposed_health_check(self):
         logger.info("Health check")
         return "OK"
 
-    def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest, iter_duration_callback):      
+    def exposed_generate_txt2img(self, request: Txt2ImgGenerationRequest, iter_duration_callback):
         models_dir = settings.models_dir
         model_path = get_model_path_by_name(
             model_name=request.model, models_dir=models_dir)
@@ -63,9 +67,14 @@ class MyService(rpyc.Service):
             seed=request.seed
         )
 
-        pipeline = create_pipeline(model_path=model_path)
+        if MyService._cached_model_path != model_path:
+            MyService._pipeline_cache = create_pipeline(model_path=model_path)
+            MyService._cached_model_path = model_path
+
+        pipeline = MyService._pipeline_cache
 
         curr_start = time.time_ns()
+
         def generation_progress_callback(self, step: int, timestep: int, callback_kwargs: dict):
             nonlocal curr_start
             start = curr_start

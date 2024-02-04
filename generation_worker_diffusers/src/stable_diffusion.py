@@ -2,11 +2,18 @@ import logging
 from dataclasses import dataclass
 from os import PathLike
 from typing import Callable, Optional, Union
+import sys
 
 import torch
 from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion import \
     StableDiffusionPipeline
 from PIL import Image
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+logger.addHandler(console_handler)
 
 
 @dataclass
@@ -32,8 +39,8 @@ def select_device():
 
 def create_pipeline(model_path: Optional[Union[str, PathLike]]):
     device = select_device()
-    logging.info(f"Using device: {device}")
-    print(f"Using device: {device}")
+    logger.info(f"Creating pipeline for {model_path}")
+    logger.info(f"Using device: {device}")
 
     torch_dtype = torch.float32
     if device == torch.device("cuda"):
