@@ -2,10 +2,14 @@ import random
 from locust import HttpUser, task, between, run_single_user, events
 import time
 
+import os
+
+BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
+
 
 class ApiUser(HttpUser):
     wait_time = between(1, 2)
-    host = "http://localhost:8000"
+    host = BASE_URL
 
     @task
     def post_and_poll(self):
@@ -30,7 +34,7 @@ class ApiUser(HttpUser):
             }
         }
 
-        start_time = time.time()  # Record the start time of the POST request
+        start_time = time.time()
 
         with self.client.post("/images/", json=post_data, catch_response=True) as post_response:
             if post_response.status_code == 202:
