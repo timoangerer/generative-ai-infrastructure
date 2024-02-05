@@ -1,30 +1,27 @@
 # Generation Worker: Diffusers
 
-## Local Development setup
+## Run locally
 
-Make sure to have pyenv and python 3.10.12 installed. That's the python version of the docker image image.
+1. Install the depdencies and activate the python venv:
+```bash
+pdm install
+```
 
-Make sure to activate the virtual environment.
+2. Create a `.env` file in the root directory and add all necessary values found in the `src/config.py` file.
 
-Use pip-tools and the pip-compile command to update the requirements.txt file. Make sure to install pip tools into the virtual environment.
-
+3. Run the application
+```bash
+pdm start
+```
 
 ## Docker
 
-### Build the image
-
+Build the docker image:
 ```bash
-docker build -t genai-worker-diffusers .
+docker build -t genai-worker-diffusers
 ```
 
-### Push the image to docker hub
-
-```bash
-docker tag genai-worker-diffusers:latest timoangerer/genai-worker-diffusers:latest
-docker push timoangerer/genai-worker-diffusers:latest
-```
-
-All together:
+Build, tag and push the docker image (replace `timoangerer` with your own docker hub id):
 ```bash
 docker build -t genai-worker-diffusers . &&
 docker tag genai-worker-diffusers:latest timoangerer/genai-worker-diffusers:latest &&
