@@ -44,8 +44,8 @@ def test_image_generation(image_generation_data):
 
     # Polling GET /images until the image with the correct ID is found
     image_info = None
-    for attempt in range(1, 3):
-        time.sleep(8)
+    for attempt in range(1, 6):
+        time.sleep(5)
         print(f"Polling attempt {attempt}")
 
         get_response = requests.get(f"{BASE_URL}/images/{request_id}")
