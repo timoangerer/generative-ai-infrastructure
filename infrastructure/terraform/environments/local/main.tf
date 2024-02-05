@@ -12,15 +12,29 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "minikube" {
+  backend = "local"
+
+  config = {
+    path = "./minikube/terraform.tfstate"
+  }
+}
+
 provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = "minikube"
+  host = data.terraform_remote_state.minikube.outputs.cluster_host
+
+  client_certificate     = data.terraform_remote_state.minikube.outputs.client_certificate
+  client_key             = data.terraform_remote_state.minikube.outputs.client_key
+  cluster_ca_certificate = data.terraform_remote_state.minikube.outputs.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    config_path    = "~/.kube/config"
-    config_context = "minikube"
+    host = data.terraform_remote_state.minikube.outputs.cluster_host
+
+    client_certificate     = data.terraform_remote_state.minikube.outputs.client_certificate
+    client_key             = data.terraform_remote_state.minikube.outputs.client_key
+    cluster_ca_certificate = data.terraform_remote_state.minikube.outputs.cluster_ca_certificate
   }
 }
 
@@ -248,7 +262,7 @@ resource "kubernetes_deployment" "genai_worker_deployment" {
           name = "storage"
 
           persistent_volume_claim {
-            claim_name = "models-pvc"
+            claim_name = kubernetes_persistent_volume_claim.models_pvc.metadata[0].name
             read_only  = true
           }
         }

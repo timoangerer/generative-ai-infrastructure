@@ -365,35 +365,49 @@ For local development, make sure you have Python3, [Python PDM](https://pdm-proj
 5. Check the sub-project specific `README` file for additional information, such as on how to build the docker image, etc.
 
 ### Deploy to local minikube cluster
+To deploy the infrastructure locally on Minikube, ensure you have a Linux machine (tested with Ubuntu 22.04) with a NVIDIA GPU featuring a minimum of 8GB VRAM
 
-Deploying the infrastructure locally to minikube requires a linux machine (tested with Ubuntu 22.04) with a NVIDIA GPU with a minimum of 8GB VRAM.
+**Prerequisites**
 
-Install [minikube](https://minikube.sigs.k8s.io/docs/start/) version v1.32.0 or above. This is essential for GPU support.
+1. Install [Minikube](https://minikube.sigs.k8s.io/docs/start/) version v1.32.0 or higher. GPU support is crucial for this setup.
+2. Follow the [Minikube documentation](https://minikube.sigs.k8s.io/docs/start/) to enable GPU support. **Do not** create the Minikube cluster itself at this stage; it will be created using Terraform.
 
-Follow the [minikube docs instructions for enabling GPU support](https://minikube.sigs.k8s.io/docs/start/). Create a cluster as instructed:
+**Creating the Kubernetes Cluster with Minikube**
 
-```bash
-minikube start --driver docker --container-runtime docker --gpus all
-```
+1. From the project root folder, navigate to the Terraform definition for Minikube:
+    
+    ```bash
+    cd terraform/environments/local/minikube
+    ```
+    
+2. Initialize the Terraform project and create the Minikube Kubernetes cluster. When prompted by the **`terraform apply`** command, respond with "yes" as instructed:
+    
+    ```bash
+    terraform init
+    terraform apply
+    ```
+    
 
-From the project root folder, navigate to the development terraform definition:
+**Deploying Kubernetes Resources and Services into Minikube**
 
-```bash
-cd terraform/environments/development
-```
-
-Initialize the terraform project and deploy all resources and services. Answer the `terraform apply` command with “yes” as instructed.
-
-```bash
-terraform init
-terraform apply
-```
-
-If prompted for AWS credentials, add key and secret that have permission to write to the specified S3 bucket.
-
-This should take around 15-20 minutes to deploy. Once terraform completes successfully, the infrastructure is deployed locally.
-
-Follow the instructions under "Verify your installation” to test the infrastructure.
+1. Return to the project root folder, then navigate to the Terraform definitions for local deployment:
+    
+    ```bash
+    cd terraform/environments/local
+    ```
+    
+2. Initialize the Terraform project and deploy all resources and services. When prompted by the **`terraform apply`** command, respond with "yes" as instructed:
+    
+    ```bash
+    terraform init
+    terraform apply
+    ```
+    
+    If you are asked for AWS credentials, provide the key and secret with permissions to write to the specified S3 bucket.
+    
+    The deployment process typically takes around 15-20 minutes to complete. Once Terraform finishes successfully, the infrastructure is deployed locally.
+    
+    Follow the section ["Verifying the Installation”](#verifing-the-installation) to verify the installation.
 
 ### **Finding Issues to Work On**
 

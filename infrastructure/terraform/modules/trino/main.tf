@@ -37,7 +37,7 @@ resource "kubernetes_deployment" "genai_trino_deployment" {
 
           resources {
             limits = {
-              cpu    = "4000m"
+              cpu    = "3000m"
               memory = "6Gi"
             }
 
