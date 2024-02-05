@@ -89,6 +89,8 @@ The infrastructure is now successfully deployed and ready for use or integration
 
 To ensure that the infrastructure is functioning correctly, follow these steps:
 
+Note: Make sure to configure your local Kubectl configuration for the Kuberentes cluster you want to access. For AWS, you can run `aws eks list-clusters` and `aws eks update-kubeconfig --name <cluster-name>` to add the cluster to your local configuration.
+
 1. **Make the API Accessible Locally**:
     
     Run the following command to forward the API to your local machine on port 8000:

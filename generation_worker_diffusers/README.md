@@ -30,16 +30,12 @@ docker push timoangerer/genai-worker-diffusers:latest
 
 ### Run the image
 
-```bash
-docker run --rm -it -v ./models:/models --env MODELS_DIR="/models" genai-worker-diffusers
-```
-
-With GPU enabled:
+Run the image with GPU enabled:
 ```bash
 docker run --rm -it  -v ./models:/models --env MODELS_DIR="/models" -p 18812:18812 --gpus all genai-worker-diffusers
 ```
 
-### Localy run the image (for testing purposes)
+## Localy run the image
 
 1. Build the image.
 
@@ -59,29 +55,22 @@ sudo wget "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1
 echo "MODELS_DIR=./models" > .env
 ```
 
-4. Run the docker image for sample generation.
+4. Run the docker image
 
 ```bash
-docker run --rm -it -v ./models:/models --env MODELS_DIR="/models" --gpus all genai-worker-diffusers python -m src.sample_image
+docker run --rm -it  -v ./models:/models --env MODELS_DIR="/models" -p 18812:18812 --gpus all genai-worker-diffusers
 ```
 
-Or run the the python script directly without docker
-
-5. Download additional necessary models for diffusers.
+5. Make a test request using the sample RPC client
 
 ```bash
-source .venv/bin/activate
-python download_hf_models.py ~/.cache/huggingface
+python sample_rpc_client.py
 ```
 
-6. Run the python module for sample image generation
+6. Or optinally, run the python module for sample image generation
+
+This stable diffusion generation functions and generates a test image.
 
 ```bash
-python -m src.sample_image
-```
-
-### Localy run the RPC server
-
-```bash
-docker run --rm -it -v ./models:/models -p 18812:18812 -e MODELS_DIR=/models --gpus all genai-worker-diffusers
+python sample_image.py
 ```

@@ -27,8 +27,3 @@ docker build -t genai-worker-sidecar . &&
 docker tag genai-worker-sidecar:latest timoangerer/genai-worker-sidecar:latest &&
 docker push timoangerer/genai-worker-sidecar:latest
 ```
-
-Run the docker image
-```bash
-docker run --rm -it genai-worker-sidecar
-```
