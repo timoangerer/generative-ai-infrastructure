@@ -305,7 +305,7 @@ The project incorporates Prometheus, Grafana, and Signoz deployments with OpenTe
 
 The architecture of this project is designed to run entirely within a Kubernetes cluster, configured and managed using Terraform. It leverages a combination of various technologies and patterns to ensure efficient, scalable, and reliable operations. Below is a detailed breakdown of the architecture:
 
-![Diagram of the infrastructure.](Genai%20AI%20documentation%201988212a9bb2490ca8c9d16a3710f3bd/Untitled.png)
+![Diagram of the infrastructure.](archi-diagram.png)
 
 Diagram of the infrastructure.
 
