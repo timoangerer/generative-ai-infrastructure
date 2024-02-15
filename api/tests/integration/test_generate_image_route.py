@@ -13,30 +13,29 @@ test_data = [
         "generation_settings": {
             "prompt": "test prompt 1",
             "negative_prompt": "monochrome, black and white",
-            "styles": ["realistic", "4k"],
             "sampler_name": "Euler a",
             "n_iters": 1,
             "steps": 20,
             "cfg_scale": 7.0,
             "width": 512,
             "height": 512,
-            "override_settings": {"sd_model_checkpoint": "v1.5-stable"}
+            "model": "DreamShaper_6"
         }
-    }, 200),
+    }, 202),
     # Only required paramters present
     ({
         "metadata": {"key1": "value1"},
         "generation_settings": {
             "prompt": "test prompt 1",
-            "override_settings": {"sd_model_checkpoint": "v1.5-stable"}
+            "model": "DreamShaper_6",
+            "sampler_name": "Euler a"
         }
-    }, 200),
+    }, 202),
     # Prompt is missing
     ({
         "metadata": {"key1": "value1"},
         "generation_settings": {
             "negative_prompt": "monochrome, black and white",
-            "styles": ["realistic", "4k"],
             "seed": 1,
             "sampler_name": "Euler a",
             "n_iters": 1,
@@ -44,16 +43,15 @@ test_data = [
             "cfg_scale": 7.0,
             "width": 512,
             "height": 512,
-            "override_settings": {"sd_model_checkpoint": "v1.5-stable"}
+            "model": "DreamShaper_6"
         }
     }, 422),
-    # override_settings is missing
+    # model is missing
     ({
         "metadata": {"key1": "value1"},
         "generation_settings": {
             "prompt": "test prompt 1",
             "negative_prompt": "monochrome, black and white",
-            "styles": ["realistic", "4k"],
             "seed": 1,
             "sampler_name": "Euler a",
             "n_iters": 1,
@@ -69,7 +67,6 @@ test_data = [
         "generation_settings": {
             "prompt": "test prompt 1",
             "negative_prompt": "monochrome, black and white",
-            "styles": ["realistic", "4k"],
             "seed": 1,
             "sampler_name": "Euler a",
             "n_iters": 1,
@@ -77,7 +74,7 @@ test_data = [
             "cfg_scale": 7.0,
             "width": 512,
             "height": 512,
-            "override_settings": {"sd_model_checkpoint": ""}
+            "model": {"sd_model_checkpoint": ""}
         }
     }, 422),
     # metadata is missing
@@ -85,7 +82,6 @@ test_data = [
         "generation_settings": {
             "prompt": "test prompt 1",
             "negative_prompt": "monochrome, black and white",
-            "styles": ["realistic", "4k"],
             "seed": 1,
             "sampler_name": "Euler a",
             "n_iters": 1,
@@ -93,7 +89,7 @@ test_data = [
             "cfg_scale": 7.0,
             "width": 512,
             "height": 512,
-            "override_settings": {"sd_model_checkpoint": "v1.5-stable"}
+            "model": "DreamShaper_6"
         }
     }, 422),
     # metadata is a string instead of a dict
@@ -102,7 +98,6 @@ test_data = [
         "generation_settings": {
             "prompt": "test prompt 1",
             "negative_prompt": "monochrome, black and white",
-            "styles": ["realistic", "4k"],
             "seed": 1,
             "sampler_name": "Euler a",
             "n_iters": 1,
@@ -110,7 +105,7 @@ test_data = [
             "cfg_scale": 7.0,
             "width": 512,
             "height": 512,
-            "override_settings": {"sd_model_checkpoint": "v1.5-stable"}
+            "model": "DreamShaper_6"
         }
     }, 422)
 ]

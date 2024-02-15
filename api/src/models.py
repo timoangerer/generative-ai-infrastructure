@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -11,7 +11,7 @@ class Txt2ImgGenerationSettings(BaseModel):
     negative_prompt: str = ""
     seed: int = Field(default=random.randint(0, 9999999999), ge=0)
     sampler_name: str = Field(min_length=1)
-    batch_size: int = Field(1, const=True)
+    batch_size: Optional[Literal[1]] = 1
     n_iters: int = 1
     steps: int = 20
     cfg_scale: float = 7
