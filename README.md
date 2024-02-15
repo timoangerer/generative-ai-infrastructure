@@ -68,7 +68,7 @@ With the Kubernetes cluster set up, the next step is to deploy the services into
 1. Navigate to the production environment's Terraform project:
     
     ```bash
-    cd infrastructure/terraform/environments/production
+    cd infrastructure/terraform/environments/aws
     ```
     
 2. Initialize and deploy all resources and services with Terraform:
