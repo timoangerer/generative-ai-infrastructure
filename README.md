@@ -1,6 +1,6 @@
 # Generative AI Infrastructure
 
-This projects is an example implementation of a backend cloud infrastructure designed to run open source generative AI models for image generation. It currently supports the Hugging Faces [Diffusers](https://huggingface.co/docs/diffusers/index) implementation for Stable Diffusion and runs on [AWS EKS](https://aws.amazon.com/eks/).
+This projects is an example implementation of a backend cloud infrastructure designed to run open source generative AI models (Stable Diffusion) for image generation. It currently supports the Hugging Faces [Diffusers](https://huggingface.co/docs/diffusers/index) implementation for Stable Diffusion and runs on [AWS EKS](https://aws.amazon.com/eks/).
 
 Significant advancements are being made daily in the development of generative AI models. However, there is a notable gap in resources and guidance on how to effectively implement and utilize these models for complex use cases and product integrations. This implementation demonstrates how to harness cloud computing features like horizontal scaling, GPU instances, and parallel processing to facilitate fast, cost-efficient, and reliable content generation.
 
@@ -169,7 +169,7 @@ Note: Make sure to configure your local Kubectl configuration for the Kuberentes
           "prompt": "A dog",
           "negative_prompt": "",
           "seed": 42,
-          "sampler_name": "asdf",
+          "sampler_name": "euler",
           "batch_size": 1,
           "n_iters": 1,
           "steps": 5,
