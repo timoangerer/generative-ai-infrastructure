@@ -46,7 +46,7 @@ Start by creating the Kubernetes cluster:
 1. Navigate into the EKS terraform directory.
     
     ```bash
-    cd infrastructure/terraform/eks
+    cd infrastructure/terraform/environments/aws/eks/
     ```
     
 2. Initialize and apply the Terraform configuration:
